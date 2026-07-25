@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lưu trú - Xã Đảo Thạnh An</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="home.css?v=82">
+  
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --primary: #0d9488;
+      --primary-dark: #0f766e;
+      --accent: #f59e0b;
+      --text-dark: #1a2332;
+      --text-medium: #4a5568;
+      --bg-light: #f0f5fb;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-light); margin: 0; }
+    .page-header {
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+      color: white; height: 250px; display: flex; flex-direction: column;
+      justify-content: center; align-items: center; margin-top: 70px;
+    }
+    .page-header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+    .breadcrumb a { color: white; text-decoration: none; }
+    
+    .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+    
+    .stay-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px;
+    }
+    .stay-card {
+      background: white; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s;
+    }
+    .stay-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    .stay-img { width: 100%; height: 200px; object-fit: cover; }
+    .stay-info { padding: 20px; }
+    .stay-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 5px; }
+    .stay-price { color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <img src="logo.png" alt="Logo" class="logo-img">
+        <div class="logo-text"><strong>CÔNG TRÌNH THANH NIÊN</strong></div>
+      </div>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="tong-quan.html">Tổng quan</a></li>
+        <li><a href="di-chuyen.html">Di chuyển</a></li>
+        <li><a href="dia-diem.html">Địa điểm</a></li>
+        <li><a href="am-thuc.html">Ẩm thực</a></li>
+        <li><a href="luu-tru.html" class="active">Lưu trú</a></li>
+        <li><a href="meo-du-lich.html">Mẹo du lịch</a></li>
+        <li><a href="lich-trinh.html">Lịch trình</a></li>
+        <li><a href="hinh-anh.html">Hình ảnh</a></li>
+        <li><a href="index.html#lien-he">Liên hệ</a></li>
+      </ul>
+      <div class="nav-right-actions">
+        <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>Lưu trú</h1>
+    <div class="breadcrumb"><a href="index.html">Trang chủ</a> > <span>Lưu trú</span></div>
+  </div>
+
+  <div class="container">
+    <div class="stay-grid" id="stay-grid">
+      <p style="text-align: center; width: 100%;">Đang tải dữ liệu...</p>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand-col">
+        <div class="footer-brand-row">
+          <img src="logo.png" alt="Logo" class="footer-logo">
+          <div class="footer-brand-text">
+            <strong>ĐOÀN TRƯỜNG ĐẠI HỌC KINH TẾ - LUẬT</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    if (!firebase.apps || !firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyAe5evR4GLSnTG4iTQAXH2uepOXAqZnYbE",
+        authDomain: "thanh-an-guidebook.firebaseapp.com",
+        projectId: "thanh-an-guidebook",
+        storageBucket: "thanh-an-guidebook.firebasestorage.app",
+        messagingSenderId: "267179583637",
+        appId: "1:267179583637:web:70d8835f66028844cd139c"
+      });
+    }
+    const db = firebase.firestore();
+
+    function driveToImg(url) {
+      if (!url) return 'https://via.placeholder.com/400x300?text=Stay';
+      var m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      return m ? 'https://lh3.googleusercontent.com/d/' + m[1] : url;
+    }
+
+    db.collection('places').where('type', '==', 'luu-tru').get().then(snapshot => {
+      const grid = document.getElementById('stay-grid');
+      grid.innerHTML = '';
+      if(snapshot.empty) { grid.innerHTML = '<p>Chưa có dữ liệu lưu trú.</p>'; return; }
+      
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        grid.innerHTML += `
+          <div class="stay-card">
+            <img src="${driveToImg(data.image)}" alt="${data.name}" class="stay-img">
+            <div class="stay-info">
+              <div class="stay-title">${data.name}</div>
+              <div class="stay-price"><i class="fas fa-tag"></i> ${data.price || 'Liên hệ'}</div>
+              <p style="font-size: 0.9rem; color: #666;">${data.description || ''}</p>
+              <div style="font-size: 0.9rem;">
+                <div><i class="fas fa-phone" style="color:var(--primary)"></i> ${data.contact || 'N/A'}</div>
+                <div><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> ${data.address || 'Thạnh An'}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    });
+  </script>
+  <script src="home.js?v=82"></script>
+</body>
+</html>

@@ -1,0 +1,2143 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cẩm nang du lịch Thạnh An | Công trình Mùa hè Xanh UEL</title>
+    <!-- Include home.css -->
+    <link rel="stylesheet" href="home.css?v=82">
+    
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --primary-light: #e0f2fe;
+            --accent: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9fafb;
+            color: #333;
+            scroll-behavior: smooth;
+        }
+
+        /* Navbar (Strictly 5 Items & Specific Structure) */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-img {
+            height: 98px !important;
+            width: auto !important;
+            border-radius: 0;
+            object-fit: contain;
+        }
+        .logo-text {
+            display: none !important;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+            margin: 0;
+            padding: 0;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #1e293b;
+            font-weight: 800 !important;
+            font-size: 1.05rem !important;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--primary);
+        }
+        .nav-right-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .nav-right-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-family: inherit;
+        }
+        .lang-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+        }
+        .nav-toggle {
+            display: none;
+        }
+        
+        @media (max-width: 850px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: white;
+                padding: 20px 0;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                text-align: center;
+            }
+            .nav-links.open { display: flex; }
+            .nav-toggle { display: block !important; }
+        }
+
+        /* Page Banner */
+        .page-banner {
+            min-height: 250px;
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.85) 0%, rgba(3, 105, 161, 0.82) 100%), url('3.jpg') center/cover no-repeat !important;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 135px 20px 50px 20px !important;
+            box-sizing: border-box;
+        }
+        .page-banner h1 {
+            margin: 0 0 10px;
+            font-size: 2.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .page-banner p {
+            margin: 0;
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        /* Sub-Navigation (4 Pillars) - Fixed in place, non-sticky */
+        .sticky-tabs {
+            position: relative !important;
+            top: 0 !important;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            z-index: 10;
+            padding: 20px 0;
+            overflow-x: auto;
+            border-bottom: 1px solid #eee;
+        }
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            min-width: max-content;
+        }
+        .tab-btn {
+            background: white;
+            border: 1px solid #e5e7eb;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-family: inherit;
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .tab-btn:hover {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border-color: var(--primary-light);
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+        }
+
+        /* Tab Content Area */
+        .tab-content {
+            display: none;
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 60vh;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            text-align: center;
+            color: var(--primary-dark);
+            font-size: 2rem;
+            margin-bottom: 12px;
+            position: relative;
+            padding-bottom: 14px;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3.5px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .sub-lead {
+            text-align: center;
+            color: #64748b;
+            font-size: 1.05rem;
+            margin-top: 14px;
+            margin-bottom: 32px;
+        }
+
+        .table-wrapper {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 40px;
+        }
+
+        .transit-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .transit-table th {
+            background: #0284c7;
+            color: white;
+            padding: 16px 20px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .transit-table td {
+            padding: 18px 20px;
+            border-bottom: 1px dashed #e2e8f0;
+            color: #334155;
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        .transit-table tr:last-child td { border-bottom: none; }
+        
+        .badge-step {
+            background: #0284c7;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 800;
+            margin-right: 8px;
+        }
+
+        .ferry-time-badge {
+            display: inline-block;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .sub-section-title {
+            color: #0369a1;
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin: 35px 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .vehicles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .vehicle-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border: 1.5px solid #e0f2fe;
+            position: relative;
+        }
+
+        .rec-tag {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #0284c7;
+            color: white;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+        }
+
+        .vehicle-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .vehicle-icon {
+            width: 60px;
+            height: 60px;
+            background: #e0f2fe;
+            color: #0284c7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            flex-shrink: 0;
+        }
+
+        .vehicle-header h4 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        .vehicle-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .vehicle-list li {
+            margin-bottom: 12px;
+            font-size: 0.92rem;
+            line-height: 1.5;
+            color: #334155;
+        }
+
+        .vehicle-list li.pro i { color: #16a34a; }
+        .vehicle-list li.con i { color: #ef4444; }
+        .vehicle-list li.info i { color: #0284c7; }
+
+        .alerts-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .alerts-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .alert-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 16px 20px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            color: #334155;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            transition: all 0.25s ease;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .alert-bar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        }
+
+        .alert-bar.orange { background: #fff7ed; border-left: 5px solid #f97316; }
+        .alert-bar.green { background: #f0fdf4; border-left: 5px solid #16a34a; }
+        .alert-bar.blue { background: #f0f9ff; border-left: 5px solid #0284c7; }
+        .alert-bar.purple { background: #faf5ff; border-left: 5px solid #a855f7; }
+        .alert-bar.pink { background: #fdf2f8; border-left: 5px solid #ec4899; }
+        .alert-bar.yellow { background: #fefce8; border-left: 5px solid #eab308; }
+
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .alert-icon.orange { background: #ea580c; }
+        .alert-icon.green { background: #16a34a; }
+        .alert-icon.blue { background: #0284c7; }
+        .alert-icon.purple { background: #9333ea; }
+        .alert-icon.pink { background: #db2777; }
+        .alert-icon.yellow { background: #ca8a04; }
+
+        /* TOUR HEADER CARD STYLES (MATCHING SCREENSHOT 2 & 3) */
+        .tour-header-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border: 1.5px solid #e0f2fe;
+            margin-bottom: 35px;
+        }
+
+        .tour-header-card h3 {
+            margin: 0 0 10px 0;
+            color: #0369a1;
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+
+        .tour-header-card p {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin: 0 0 20px 0;
+            line-height: 1.5;
+        }
+
+        .tour-badges {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tour-badge {
+            background: #e0f2fe;
+            color: #0284c7;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .day-header-pill {
+            display: inline-block;
+            background: #0284c7;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 1rem;
+            margin: 30px 0 20px 0;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+        }
+
+        .red-alert-card {
+            background: #fef2f2;
+            border-left: 5px solid #ef4444;
+            padding: 18px 22px;
+            border-radius: 12px;
+            margin-top: 35px;
+            color: #991b1b;
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        .red-alert-card strong {
+            color: #b91c1c;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.98rem;
+        }
+        .step-card {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            text-align: center;
+            border-top: 4px solid var(--primary);
+            position: relative;
+        }
+        .step-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        .step-card h3 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        .step-card p { color: #666; line-height: 1.5; margin: 0; }
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 3px solid white;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        .info-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        }
+        .info-box h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary-dark);
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .info-list li {
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #e5e7eb;
+            padding-bottom: 8px;
+            color: #444;
+        }
+        .info-list li:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .note-box {
+            background: #fffbeb;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 20px;
+            color: #92400e;
+        }
+
+        /* ================= TAB 2: KHÁM PHÁ ĐỊA ĐIỂM ================= */
+        #map-container {
+            position: relative;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 2px solid white;
+        }
+        #map {
+            height: 450px;
+            width: 100%;
+            z-index: 1;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: white;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            font-weight: bold;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(13, 148, 136, 0.2);
+        }
+        
+        .places-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .place-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+        .place-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .place-img-wrapper {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+        .place-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        .place-card:hover .place-img {
+            transform: scale(1.05);
+        }
+        .place-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.9);
+            color: var(--primary-dark);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .place-info {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .place-title {
+            margin: 0 0 10px;
+            color: var(--primary-dark);
+            font-size: 1.25rem;
+            line-height: 1.3;
+        }
+        .place-meta {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .place-meta i {
+            color: var(--accent);
+            margin-top: 3px;
+            width: 14px;
+            text-align: center;
+        }
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary);
+            font-size: 1.5rem;
+            grid-column: 1 / -1;
+        }
+
+        /* Place Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 850px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: white;
+            color: #333;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 1.2rem;
+            z-index: 10;
+            transition: 0.3s;
+        }
+        .modal-close:hover {
+            background: #f1f1f1;
+            color: var(--primary);
+            transform: rotate(90deg);
+        }
+        .modal-banner {
+            height: 300px;
+            width: 100%;
+            object-fit: cover;
+        }
+        .modal-body {
+            padding: 30px;
+        }
+        .modal-title {
+            font-size: 2.2rem;
+            color: var(--primary-dark);
+            margin: 0 0 10px;
+        }
+        .modal-desc {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-size: 1.05rem;
+        }
+        .modal-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .modal-meta-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: #334155;
+        }
+        .modal-meta-item i {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-top: 2px;
+        }
+        .modal-meta-item strong {
+            display: block;
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ================= TAB 3: MẸO DU LỊCH ================= */
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+        .tip-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            text-align: center;
+            transition: 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        .tip-card:hover {
+            transform: translateY(-5px);
+            border-bottom-color: var(--accent);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+        .tip-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 20px;
+        }
+        .tip-card h3 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        .tip-card p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+        
+        .green-rules {
+            background: linear-gradient(to right, #e6f4ea, #dcfce7);
+            border-radius: 15px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .green-rules::before {
+            content: '\f4d8'; /* Leaf icon */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            font-size: 10rem;
+            color: rgba(34, 197, 94, 0.1);
+            transform: rotate(-15deg);
+        }
+        .green-rules h3 {
+            color: #166534;
+            text-align: center;
+            margin-top: 0;
+            font-size: 1.8rem;
+            position: relative;
+        }
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            position: relative;
+        }
+        .rule-item {
+            text-align: center;
+            padding: 25px 15px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+        .rule-item i {
+            font-size: 2.5rem;
+            color: #16a34a;
+            margin-bottom: 15px;
+        }
+        .rule-item h4 {
+            color: #15803d;
+            margin: 0 0 10px;
+        }
+        .rule-item p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #4b5563;
+        }
+
+        /* ================= TAB 4: LỊCH TRÌNH ================= */
+        .itinerary-toggles {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        .iti-btn {
+            background: white;
+            border: 2px solid var(--primary);
+            padding: 12px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            color: var(--primary);
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 1.05rem;
+            transition: all 0.3s;
+        }
+        .iti-btn:hover {
+            background: var(--primary-light);
+        }
+        .iti-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+        }
+        
+        .itinerary-view { display: none; }
+        .itinerary-view.active { display: block; animation: fadeIn 0.4s ease; }
+
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 105px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary-light);
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 40px;
+            padding-left: 155px;
+        }
+        .timeline-item:last-child { margin-bottom: 0; }
+        
+        .timeline-icon {
+            position: absolute;
+            left: 84.5px;
+            top: 0;
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            border: 4px solid white;
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+        .timeline-time {
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 72px;
+            font-weight: 800;
+            color: var(--accent);
+            font-size: 1rem;
+            text-align: right;
+            padding: 2px 0;
+        }
+        .timeline-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary);
+            position: relative;
+        }
+        .timeline-content::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            top: 15px;
+            border-width: 8px 12px 8px 0;
+            border-style: solid;
+            border-color: transparent var(--primary) transparent transparent;
+        }
+        .timeline-content h4 {
+            margin: 0 0 10px;
+            color: var(--primary-dark);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .timeline-content p {
+            margin: 0;
+            color: #555;
+            line-height: 1.6;
+        }
+        .timeline-day-header {
+            background: var(--primary-dark);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 30px;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+            margin-left: 20px;
+        }
+
+        /* Footer Placeholder */
+        .footer {
+            background: #1f2937;
+            color: #f3f4f6;
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR (Strictly 5 items as requested) -->
+    <nav class="navbar" id="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="logo.png" alt="Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/45?text=Logo'">
+          <div class="logo-text"><strong>Công trình Mùa hè Xanh UEL</strong></div>
+        </div>
+        <ul class="nav-links" id="nav-links">
+          <li><a href="index.html" id="nav-home">Trang chủ</a></li>
+          <li><a href="tong-quan.html" id="nav-intro">Giới thiệu chung</a></li>
+          <li><a href="cam-nang.html" class="active" id="nav-guide">Cẩm nang du lịch</a></li>
+          <li><a href="cam-nang-so.html" id="nav-digital">Cẩm nang số</a></li>
+          <li><a href="hinh-anh.html" id="nav-gallery">Hình ảnh</a></li>
+          <li><a href="index.html#lien-he" id="nav-contact">Liên hệ</a></li>
+        </ul>
+        <div class="nav-right-actions">
+          <button class="lang-toggle-btn" onclick="toggleLang()" title="Switch language">
+            <i class="fas fa-globe"></i> <span id="lang-label">EN</span>
+          </button>
+          <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- PAGE BANNER -->
+    <header class="page-banner">
+        <h1>CẨM NANG DU LỊCH <br class="banner-title-br">XÃ ĐẢO THẠNH AN</h1>
+        <p>Hướng dẫn trọn gói: Di chuyển, Địa điểm, Mẹo du lịch & Lịch trình</p>
+    </header>
+
+    <!-- STICKY SUB-NAVIGATION BAR (4 Pillar Tabs) -->
+    <div class="sticky-tabs">
+        <div class="tabs-container">
+            <button class="tab-btn active" data-target="tab-di-chuyen" onclick="switchTab('tab-di-chuyen')">
+                <i class="fas fa-ship"></i> Cách di chuyển
+            </button>
+            <button class="tab-btn" data-target="tab-kham-pha" onclick="switchTab('tab-kham-pha')">
+                <i class="fas fa-map-marker-alt"></i> Khám phá địa điểm
+            </button>
+            <button class="tab-btn" data-target="tab-meo" onclick="switchTab('tab-meo')">
+                <i class="fas fa-lightbulb"></i> Mẹo du lịch và các lưu ý
+            </button>
+            <button class="tab-btn" data-target="tab-lich-trinh" onclick="switchTab('tab-lich-trinh')">
+                <i class="fas fa-clipboard-list"></i> Lịch trình cụ thể
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= TAB 1: CÁCH DI CHUYỂN ================= -->
+    <section id="tab-di-chuyen" class="tab-content active">
+        <h2 class="section-title">CÁCH DI CHUYỂN</h2>
+        <p class="sub-lead">Lộ trình tổng quát từ TP.HCM đến đảo Thạnh An</p>
+        
+        <!-- Transit Table (Matching Screenshot 1) -->
+        <div class="table-wrapper">
+            <table class="transit-table">
+                <thead>
+                    <tr>
+                        <th style="width: 32%;">CHẶNG</th>
+                        <th style="width: 43%;">CHI TIẾT</th>
+                        <th style="width: 25%;">GIÁ/VÉ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge-step">01</span> <i class="fas fa-map-marker-alt" style="color:#0284c7;"></i> <strong>TP.HCM ➔ Phà Bình Khánh</strong></td>
+                        <td>438 Rừng Sác, xã Bình Khánh</td>
+                        <td>Xe máy 1 người: <strong>7.000đ</strong><br>Xe máy 2 người: <strong>9.000đ</strong></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-step">02</span> <i class="fas fa-ship" style="color:#0284c7;"></i> <strong>Phà Bình Khánh ➔ Bến phà Tắc Xuất</strong></td>
+                        <td>~43km đường Rừng Sác (1 tiếng xe máy; đường thẳng, dễ đi)</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-step">03</span> <i class="fas fa-parking" style="color:#0284c7;"></i> <strong>Gửi xe tại bến phà Tắc Xuất</strong></td>
+                        <td>Các quán nước gần bến</td>
+                        <td>Qua đêm: <strong>20.000đ</strong><br>1 ngày: <strong>10.000đ</strong></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge-step">04</span> <i class="fas fa-anchor" style="color:#0284c7;"></i> <strong>Bến phà Tắc Xuất ➔ Đảo Thạnh An</strong></td>
+                        <td>
+                            Mua vé phà, lên phà sang đảo<br>
+                            <span class="ferry-time-badge"><i class="far fa-clock"></i> Lịch phà: 6:30, 9:00, 10:30, 12:00, 14:00, 17:00</span>
+                        </td>
+                        <td><strong style="color: #0284c7; font-size: 1.15rem;">20.000đ/người</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Vehicle Options Grid -->
+        <h3 class="sub-section-title"><i class="fas fa-compass"></i> LỰA CHỌN PHƯƠNG TIỆN DI CHUYỂN</h3>
+        <div class="vehicles-grid">
+            <div class="vehicle-card">
+                <span class="rec-tag">KHUYẾN KHÍCH</span>
+                <div class="vehicle-header">
+                    <div class="vehicle-icon"><i class="fas fa-motorcycle"></i></div>
+                    <h4>Xe máy (khuyến khích)</h4>
+                </div>
+                <ul class="vehicle-list">
+                    <li class="pro"><i class="fas fa-thumbs-up"></i> <strong>Ưu điểm:</strong> Chủ động thời gian, tiết kiệm chi phí, dễ gửi xe</li>
+                    <li class="con"><i class="fas fa-minus-circle"></i> <strong>Nhược điểm:</strong> Cần sức khỏe, tự lái, trời nắng và mưa ảnh hưởng</li>
+                </ul>
+            </div>
+
+            <div class="vehicle-card">
+                <div class="vehicle-header">
+                    <div class="vehicle-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fas fa-bus"></i></div>
+                    <h4>Xe buýt (Tuyến 20, 90 & 75)</h4>
+                </div>
+                <ul class="vehicle-list">
+                    <li class="info">
+                        <i class="fas fa-phone-alt"></i> <strong>Các tuyến chính:</strong><br>
+                        • <strong>Tuyến 20 + 90:</strong> Bến Thành ➔ Phà Bình Khánh (Buýt 20), qua phà nối tiếp Buýt 90 ➔ Bến xe Tắc Xuất.<br>
+                        • <strong>Tuyến 75:</strong> Tốc hành Bến Thành ➔ Cần Thạnh / Bến Tắc Xuất.
+                    </li>
+                    <li class="pro"><i class="fas fa-thumbs-up"></i> <strong>Ưu điểm:</strong> An toàn, mát mẻ, có trợ giá cho Học sinh - Sinh viên</li>
+                    <li class="con"><i class="fas fa-minus-circle"></i> <strong>Nhược điểm:</strong> Cần đổi tuyến tại phà Bình Khánh, di chuyển ~2 tiếng</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Travel Warnings List -->
+        <h3 class="sub-section-title"><i class="fas fa-exclamation-circle"></i> LƯU Ý KHI DI CHUYỂN</h3>
+        <div class="alerts-list">
+            <div class="alert-bar orange">
+                <div class="alert-icon orange"><i class="far fa-clock"></i></div>
+                <div><strong>Không nên đi chuyến phà 17g00 về</strong> vì đường Rừng Sác tối, ít đèn, khó đi.</div>
+            </div>
+            <div class="alert-bar green">
+                <div class="alert-icon green"><i class="fas fa-money-bill-wave"></i></div>
+                <div><strong>Chuẩn bị tiền tiền mặt</strong> để mua vé phà, ăn uống, chi tiêu trên đảo.</div>
+            </div>
+            <div class="alert-bar blue">
+                <div class="alert-icon blue"><i class="fas fa-user-check"></i></div>
+                <div><strong>Nếu bị say sóng</strong>, nên chuẩn bị sẵn thuốc chống say.</div>
+            </div>
+            <div class="alert-bar purple">
+                <div class="alert-icon purple"><i class="far fa-calendar-alt"></i></div>
+                <div><strong>Hỏi kỹ bác tài phà trước khi lên</strong>, tránh lộn nhầm phà đi Vũng Tàu.</div>
+            </div>
+            <div class="alert-bar pink">
+                <div class="alert-icon pink"><i class="fas fa-id-card"></i></div>
+                <div><strong>Mang theo thẻ sinh viên</strong> để được trợ giá vé xe buýt (nếu có).</div>
+            </div>
+            <div class="alert-bar yellow">
+                <div class="alert-icon yellow"><i class="fas fa-exclamation-triangle"></i></div>
+                <div><strong>Xe buýt ít chuyến</strong>, nên đi xe cá nhân sẽ chủ động hơn.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= TAB 2: KHÁM PHÁ ĐỊA ĐIỂM ================= -->
+    <section id="tab-kham-pha" class="tab-content">
+        <h2 class="section-title">Khám Phá Địa Điểm Nổi Bật</h2>
+        
+        <!-- Map Container -->
+        <div id="map-container">
+            <div id="map"></div>
+        </div>
+
+        <!-- Filter Sub-tabs -->
+        <div class="filter-tabs" id="places-filter">
+            <button class="filter-btn active" data-type="all">Tất cả địa điểm</button>
+            <button class="filter-btn" data-type="sightseeing">Tham quan</button>
+            <button class="filter-btn" data-type="food">Ẩm thực</button>
+            <button class="filter-btn" data-type="accommodation">Lưu trú</button>
+        </div>
+
+        <!-- Places Grid -->
+        <div class="places-grid" id="places-grid">
+            <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...</div>
+            <!-- Populated via JS -->
+        </div>
+    </section>
+
+    <!-- ================= TAB 3: MẸO DU LỊCH & QUY ĐỊNH XANH ================= -->
+    <section id="tab-meo" class="tab-content">
+        <h2 class="section-title">Mẹo Du Lịch & Cẩm Nang Bỏ Túi</h2>
+        
+        <!-- Practical Tips -->
+        <div class="tips-grid">
+            <div class="tip-card">
+                <div class="tip-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fas fa-money-bill-wave"></i></div>
+                <h3>Chuẩn bị tiền mặt</h3>
+                <p>Trên đảo không có cây ATM. Bạn nên chuẩn bị sẵn tiền mặt lẻ để mua vé phà, ăn uống và mua đặc sản.</p>
+            </div>
+            <div class="tip-card">
+                <div class="tip-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fas fa-wifi"></i></div>
+                <h3>Sóng 4G & Điện</h3>
+                <p>Sóng thoại và 4G (Viettel, Vina, Mobi) phủ tốt. Đảo dùng điện lưới quốc gia 24/24 ổn định.</p>
+            </div>
+            <div class="tip-card">
+                <div class="tip-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fas fa-droplet"></i></div>
+                <h3>Nước sinh hoạt</h3>
+                <p>Nước ngọt trên đảo được vận chuyển từ đất liền. Hãy sử dụng tiết kiệm nước khi lưu trú tại homestay.</p>
+            </div>
+            <div class="tip-card" style="border-bottom: 3px solid #f59e0b;">
+                <div class="tip-icon" style="background:#fefce8; color:#ca8a04;"><i class="fas fa-sun"></i></div>
+                <h3>Thời điểm lý tưởng</h3>
+                <p>Nên đi vào mùa khô từ tháng 12 đến tháng 5 hàng năm để đón nắng đẹp và ngắm cánh đồng muối.</p>
+            </div>
+        </div>
+
+        <!-- 8 NGUYÊN TẮC VÀNG -->
+        <div style="background:#f0fdf4; border:2px solid #bbf7d0; border-radius:24px; padding:35px 25px; margin-bottom:45px;">
+            <div style="text-align:center; margin-bottom:30px;">
+                <span style="background:#16a34a; color:white; padding:6px 18px; border-radius:20px; font-weight:800; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.05em;">🌿 BẢO VỆ ĐẢO XANH</span>
+                <h3 style="color:#15803d; font-size:1.9rem; font-weight:800; margin:12px 0 6px 0;">🍃 8 NGUYÊN TẮC VÀNG – DU LỊCH XANH THẠNH AN</h3>
+                <p style="color:#166534; font-weight:600; margin:0;">Hành động nhỏ của du khách góp phần gìn giữ đảo Thạnh An xanh - sạch - đẹp</p>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:20px;">
+                <div style="background:white; border-radius:18px; padding:22px 18px; border:1px solid #dcfce7; text-align:center; position:relative; box-shadow:0 4px 12px rgba(22,163,74,0.06);">
+                    <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#16a34a; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; border:2px solid white;">1</div>
+                    <div style="font-size:2rem; color:#16a34a; margin:10px 0 10px 0;"><i class="fas fa-trash-can"></i></div>
+                    <h4 style="color:#15803d; font-weight:800; margin:0 0 8px 0; font-size:1.05rem;">Không xả rác</h4>
+                    <p style="color:#4b5563; font-size:0.88rem; line-height:1.45; margin:0;">Bỏ rác đúng nơi quy định, tuyệt đối không xả rác xuống biển, kênh rạch hoặc bờ kè.</p>
+                </div>
+                <div style="background:white; border-radius:18px; padding:22px 18px; border:1px solid #dcfce7; text-align:center; position:relative; box-shadow:0 4px 12px rgba(22,163,74,0.06);">
+                    <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#16a34a; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; border:2px solid white;">2</div>
+                    <div style="font-size:2rem; color:#16a34a; margin:10px 0 10px 0;"><i class="fas fa-bag-shopping"></i></div>
+                    <h4 style="color:#15803d; font-weight:800; margin:0 0 8px 0; font-size:1.05rem;">Giảm nhựa</h4>
+                    <p style="color:#4b5563; font-size:0.88rem; line-height:1.45; margin:0;">Mang theo đồ dùng cá nhân, hạn chế nhựa dùng một lần.</p>
+                </div>
+                <div style="background:white; border-radius:18px; padding:22px 18px; border:1px solid #dcfce7; text-align:center; position:relative; box-shadow:0 4px 12px rgba(22,163,74,0.06);">
+                    <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#16a34a; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; border:2px solid white;">3</div>
+                    <div style="font-size:2rem; color:#16a34a; margin:10px 0 10px 0;"><i class="fas fa-recycle"></i></div>
+                    <h4 style="color:#15803d; font-weight:800; margin:0 0 8px 0; font-size:1.05rem;">Phân loại rác</h4>
+                    <p style="color:#4b5563; font-size:0.88rem; line-height:1.45; margin:0;">Phân loại rác tại nguồn để tăng khả năng tái sử dụng, tái chế.</p>
+                </div>
+                <div style="background:white; border-radius:18px; padding:22px 18px; border:1px solid #dcfce7; text-align:center; position:relative; box-shadow:0 4px 12px rgba(22,163,74,0.06);">
+                    <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#16a34a; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; border:2px solid white;">4</div>
+                    <div style="font-size:2rem; color:#16a34a; margin:10px 0 10px 0;"><i class="fas fa-water"></i></div>
+                    <h4 style="color:#15803d; font-weight:800; margin:0 0 8px 0; font-size:1.05rem;">Bảo vệ biển</h4>
+                    <p style="color:#4b5563; font-size:0.88rem; line-height:1.45; margin:0;">Không xâm hại sinh vật biển và giữ gìn hệ sinh thái tự nhiên.</p>
+                </div>
+                <div style="background:white; border-radius:18px; padding:22px 18px; border:1px solid #dcfce7; text-align:center; position:relative; box-shadow:0 4px 12px rgba(22,163,74,0.06);">
+                    <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#16a34a; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; border:2px solid white;">5</div>
+                    <div style="font-size:2rem; color:#16a34a; margin:10px 0 10px 0;"><i class="fas fa-tree"></i></div>
+                    <h4 style="color:#15803d; font-weight:800; margin:0 0 8px 0; font-size:1.05rem;">Bảo vệ rừng</h4>
+                    <p style="color:#4b5563; font-size:0.88rem; line-height:1.45; margin:0;">Gìn giữ rừng ngập mặn và thảm thực vật, không gây cháy rừng.</p>
+                </div>
+                <div style="background:white; border-radius:18px; padding:22px 18px; border:1px solid #dcfce7; text-align:center; position:relative; box-shadow:0 4px 12px rgba(22,163,74,0.06);">
+                    <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#16a34a; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; border:2px solid white;">6</div>
+                    <div style="font-size:2rem; color:#16a34a; margin:10px 0 10px 0;"><i class="fas fa-sun"></i></div>
+                    <h4 style="color:#15803d; font-weight:800; margin:0 0 8px 0; font-size:1.05rem;">Tôn trọng sản xuất</h4>
+                    <p style="color:#4b5563; font-size:0.88rem; line-height:1.45; margin:0;">Tôn trọng ruộng muối và sinh kế của người dân.</p>
+                </div>
+                <div style="background:white; border-radius:18px; padding:22px 18px; border:1px solid #dcfce7; text-align:center; position:relative; box-shadow:0 4px 12px rgba(22,163,74,0.06);">
+                    <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#16a34a; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; border:2px solid white;">7</div>
+                    <div style="font-size:2rem; color:#16a34a; margin:10px 0 10px 0;"><i class="fas fa-droplet-slash"></i></div>
+                    <h4 style="color:#15803d; font-weight:800; margin:0 0 8px 0; font-size:1.05rem;">Tiết kiệm tài nguyên</h4>
+                    <p style="color:#4b5563; font-size:0.88rem; line-height:1.45; margin:0;">Tiết kiệm điện, nước góp phần bảo vệ đảo xanh.</p>
+                </div>
+                <div style="background:white; border-radius:18px; padding:22px 18px; border:1px solid #dcfce7; text-align:center; position:relative; box-shadow:0 4px 12px rgba(22,163,74,0.06);">
+                    <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#16a34a; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; border:2px solid white;">8</div>
+                    <div style="font-size:2rem; color:#16a34a; margin:10px 0 10px 0;"><i class="fas fa-hand-holding-heart"></i></div>
+                    <h4 style="color:#15803d; font-weight:800; margin:0 0 8px 0; font-size:1.05rem;">Trách nhiệm cộng đồng</h4>
+                    <p style="color:#4b5563; font-size:0.88rem; line-height:1.45; margin:0;">Ứng xử văn minh, hỗ trợ cộng đồng và để lại điều tốt đẹp.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 13 QUY ĐỊNH HƯỚNG DẪN CHI TIẾT -->
+        <div style="background:white; border:1px solid #e2e8f0; border-radius:24px; padding:35px 25px; box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+            <div style="text-align:center; margin-bottom:30px;">
+                <h3 style="color:#0369a1; font-size:1.8rem; font-weight:800; margin:0 0 8px 0;">📋 QUY ĐỊNH & HƯỚNG DẪN BẢO VỆ MÔI TRƯỜNG & VĂN HÓA</h3>
+                <p style="color:#64748b; font-size:0.95rem; margin:0;">Cẩm nang chi tiết dành cho khách du lịch và các đoàn tham quan xã đảo Thạnh An</p>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:22px;">
+                <!-- 01 -->
+                <div style="background:#f8fafc; border-radius:18px; padding:24px 20px; border:1px solid #e2e8f0; position:relative;">
+                    <span style="position:absolute; top:18px; right:18px; background:#16a34a; color:white; padding:3px 12px; border-radius:14px; font-weight:800; font-size:0.8rem;">01</span>
+                    <div style="width:50px; height:50px; background:#e0f2fe; color:#0284c7; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;"><i class="fas fa-trash-arrow-up"></i></div>
+                    <h4 style="color:#0f172a; font-weight:800; font-size:1.1rem; margin:0 0 10px 0;">Không xả rác ra biển và nơi công cộng</h4>
+                    <p style="color:#475569; font-size:0.9rem; line-height:1.55; margin:0;">Không vứt rác xuống biển, sông, kênh rạch, bờ kè, bến tàu, đường làng, ruộng muối hoặc khu rừng ngập mặn. Bỏ rác đúng nơi quy định hoặc mang trở lại đất liền nếu chưa có thùng rác.</p>
+                </div>
+
+                <!-- 02 -->
+                <div style="background:#f8fafc; border-radius:18px; padding:24px 20px; border:1px solid #e2e8f0; position:relative;">
+                    <span style="position:absolute; top:18px; right:18px; background:#16a34a; color:white; padding:3px 12px; border-radius:14px; font-weight:800; font-size:0.8rem;">02</span>
+                    <div style="width:50px; height:50px; background:#e0f2fe; color:#0284c7; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;"><i class="fas fa-bottle-water"></i></div>
+                    <h4 style="color:#0f172a; font-weight:800; font-size:1.1rem; margin:0 0 10px 0;">Hạn chế đồ nhựa dùng một lần</h4>
+                    <p style="color:#475569; font-size:0.9rem; line-height:1.55; margin:0;">Mang bình nước, hộp đựng thức ăn và túi cá nhân. Hạn chế ly nhựa, ống hút, túi nilon, hộp xốp và các sản phẩm chỉ dùng một lần. Thực hành tiết giảm – tái sử dụng – tái chế.</p>
+                </div>
+
+                <!-- 03 -->
+                <div style="background:#f8fafc; border-radius:18px; padding:24px 20px; border:1px solid #e2e8f0; position:relative;">
+                    <span style="position:absolute; top:18px; right:18px; background:#16a34a; color:white; padding:3px 12px; border-radius:14px; font-weight:800; font-size:0.8rem;">03</span>
+                    <div style="width:50px; height:50px; background:#fefce8; color:#ca8a04; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;"><i class="fas fa-recycle"></i></div>
+                    <h4 style="color:#0f172a; font-weight:800; font-size:1.1rem; margin:0 0 10px 0;">Phân loại rác tại nguồn</h4>
+                    <p style="color:#475569; font-size:0.9rem; line-height:1.55; margin:0 0 8px 0;">Phân loại rác theo hướng dẫn:</p>
+                    <ul style="padding-left:18px; margin:0; color:#475569; font-size:0.88rem; line-height:1.5;">
+                        <li><strong>Rác tái chế:</strong> chai nhựa, lon, giấy sạch;</li>
+                        <li><strong>Rác thực phẩm:</strong> thức ăn thừa, vỏ rau quả;</li>
+                        <li><strong>Rác còn lại:</strong> khăn giấy bẩn, bao bì khó tái chế;</li>
+                        <li><strong>Pin, thuốc, vật sắc nhọn:</strong> để riêng.</li>
+                    </ul>
+                </div>
+
+                <!-- 04 -->
+                <div style="background:#f8fafc; border-radius:18px; padding:24px 20px; border:1px solid #e2e8f0; position:relative;">
+                    <span style="position:absolute; top:18px; right:18px; background:#16a34a; color:white; padding:3px 12px; border-radius:14px; font-weight:800; font-size:0.8rem;">04</span>
+                    <div style="width:50px; height:50px; background:#e0f2fe; color:#0284c7; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;"><i class="fas fa-fish-fins"></i></div>
+                    <h4 style="color:#0f172a; font-weight:800; font-size:1.1rem; margin:0 0 10px 0;">Không làm ảnh hưởng hệ sinh thái biển</h4>
+                    <p style="color:#475569; font-size:0.9rem; line-height:1.55; margin:0;">Không bắt, chạm, mang sinh vật biển, san hô, vỏ ốc còn tự nhiên về làm kỷ niệm. Không tự ý xuống bãi bồi, lồng bè nuôi thủy sản và vùng bảo vệ sinh thái.</p>
+                </div>
+
+                <!-- 05 -->
+                <div style="background:#f8fafc; border-radius:18px; padding:24px 20px; border:1px solid #e2e8f0; position:relative;">
+                    <span style="position:absolute; top:18px; right:18px; background:#16a34a; color:white; padding:3px 12px; border-radius:14px; font-weight:800; font-size:0.8rem;">05</span>
+                    <div style="width:50px; height:50px; background:#f0fdf4; color:#16a34a; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;"><i class="fas fa-tree"></i></div>
+                    <h4 style="color:#0f172a; font-weight:800; font-size:1.1rem; margin:0 0 10px 0;">Bảo vệ rừng ngập mặn và thảm thực vật</h4>
+                    <p style="color:#475569; font-size:0.9rem; line-height:1.55; margin:0;">Không bẻ cành, hái lá, khắc chữ lên cây, đốt lửa, hút thuốc tại khu vực nguy cơ cháy. Chỉ đi trên tuyến đường được hướng dẫn, không mở đường tắt hoặc giẫm lên cây non.</p>
+                </div>
+
+                <!-- 06 -->
+                <div style="background:#f8fafc; border-radius:18px; padding:24px 20px; border:1px solid #e2e8f0; position:relative;">
+                    <span style="position:absolute; top:18px; right:18px; background:#16a34a; color:white; padding:3px 12px; border-radius:14px; font-weight:800; font-size:0.8rem;">06</span>
+                    <div style="width:50px; height:50px; background:#fefce8; color:#ca8a04; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;"><i class="fas fa-mountain-sun"></i></div>
+                    <h4 style="color:#0f172a; font-weight:800; font-size:1.1rem; margin:0 0 10px 0;">Tôn trọng khu vực sản xuất muối</h4>
+                    <p style="color:#475569; font-size:0.9rem; line-height:1.55; margin:0;">Không tự ý bước xuống ô muối, làm dơ ụ muối, chạm vào dụng cụ sản xuất hoặc lấy muối khi chưa được cho phép. Tham quan, chụp ảnh theo hướng dẫn của diêm dân.</p>
+                </div>
+
+                <!-- 07 -->
+                <div style="background:#f8fafc; border-radius:18px; padding:24px 20px; border:1px solid #e2e8f0; position:relative;">
+                    <span style="position:absolute; top:18px; right:18px; background:#16a34a; color:white; padding:3px 12px; border-radius:14px; font-weight:800; font-size:0.8rem;">07</span>
+                    <div style="width:50px; height:50px; background:#fef2f2; color:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;"><i class="fas fa-volume-xmark"></i></div>
+                    <h4 style="color:#0f172a; font-weight:800; font-size:1.1rem; margin:0 0 10px 0;">Không gây tiếng ồn quá mức</h4>
+                    <p style="color:#475569; font-size:0.9rem; line-height:1.55; margin:0;">Giữ âm lượng vừa phải tại khu dân cư, homestay, bến tàu và điểm sinh hoạt cộng đồng. Không mở loa lớn, hát karaoke hoặc tổ chức hoạt động ồn ào vào buổi tối nếu chưa được đồng ý.</p>
+                </div>
+
+                <!-- 08 -->
+                <div style="background:#f8fafc; border-radius:18px; padding:24px 20px; border:1px solid #e2e8f0; position:relative;">
+                    <span style="position:absolute; top:18px; right:18px; background:#16a34a; color:white; padding:3px 12px; border-radius:14px; font-weight:800; font-size:0.8rem;">08</span>
+                    <div style="width:50px; height:50px; background:#fefce8; color:#ca8a04; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;"><i class="fas fa-lightbulb"></i></div>
+                    <h4 style="color:#0f172a; font-weight:800; font-size:1.1rem; margin:0 0 10px 0;">Sử dụng nước và điện tiết kiệm</h4>
+                    <p style="color:#475569; font-size:0.9rem; line-height:1.55; margin:0;">Tắt đèn, máy lạnh, quạt và thiết bị điện khi rời phòng. Không để nước chảy liên tục khi tắm, rửa hoặc vệ sinh. Hành động nhỏ, ý nghĩa lớn cho đảo xanh.</p>
+                </div>
+
+                <!-- 09 -->
+                <div style="background:#f8fafc; border-radius:18px; padding:24px 20px; border:1px solid #e2e8f0; position:relative;">
+                    <span style="position:absolute; top:18px; right:18px; background:#16a34a; color:white; padding:3px 12px; border-radius:14px; font-weight:800; font-size:0.8rem;">09</span>
+                    <div style="width:50px; height:50px; background:#fef2f2; color:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;"><i class="fas fa-flask-vial"></i></div>
+                    <h4 style="color:#0f172a; font-weight:800; font-size:1.1rem; margin:0 0 10px 0;">Không xả nước thải và hóa chất tùy tiện</h4>
+                    <p style="color:#475569; font-size:0.9rem; line-height:1.55; margin:0;">Không đổ dầu ăn, nước tẩy rửa, hóa chất, pin, thuốc xuống đất, cống, kênh rạch hay biển. Thu gom nước thải, dầu mỡ và chất thải nguy hại đúng quy định.</p>
+                </div>
+
+                <!-- 10 -->
+                <div style="background:#f8fafc; border-radius:18px; padding:24px 20px; border:1px solid #e2e8f0; position:relative;">
+                    <span style="position:absolute; top:18px; right:18px; background:#16a34a; color:white; padding:3px 12px; border-radius:14px; font-weight:800; font-size:0.8rem;">10</span>
+                    <div style="width:50px; height:50px; background:#e0f2fe; color:#0284c7; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;"><i class="fas fa-camera"></i></div>
+                    <h4 style="color:#0f172a; font-weight:800; font-size:1.1rem; margin:0 0 10px 0;">Tôn trọng người dân và văn hóa địa phương</h4>
+                    <p style="color:#475569; font-size:0.9rem; line-height:1.55; margin:0;">Xin phép trước khi chụp ảnh người dân, nhà ở, hoạt động sản xuất hoặc nghi lễ tín ngưỡng. Không tự ý vào nhà dân, bè nuôi thủy sản, ruộng muối, khu vực thờ tự.</p>
+                </div>
+
+                <!-- 11 -->
+                <div style="background:#f8fafc; border-radius:18px; padding:24px 20px; border:1px solid #e2e8f0; position:relative;">
+                    <span style="position:absolute; top:18px; right:18px; background:#16a34a; color:white; padding:3px 12px; border-radius:14px; font-weight:800; font-size:0.8rem;">11</span>
+                    <div style="width:50px; height:50px; background:#fef2f2; color:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;"><i class="fas fa-handshake-slash"></i></div>
+                    <h4 style="color:#0f172a; font-weight:800; font-size:1.1rem; margin:0 0 10px 0;">Không mua bán sản phẩm có nguồn gốc bất hợp pháp</h4>
+                    <p style="color:#475569; font-size:0.9rem; line-height:1.55; margin:0;">Không mua sinh vật hoang dã, san hô, động vật biển quý hiếm hoặc sản phẩm khai thác trái phép. Ưu tiên sản phẩm địa phương, rõ nguồn gốc, hạn chế bao bì.</p>
+                </div>
+
+                <!-- 12 -->
+                <div style="background:#f8fafc; border-radius:18px; padding:24px 20px; border:1px solid #e2e8f0; position:relative;">
+                    <span style="position:absolute; top:18px; right:18px; background:#16a34a; color:white; padding:3px 12px; border-radius:14px; font-weight:800; font-size:0.8rem;">12</span>
+                    <div style="width:50px; height:50px; background:#f0fdf4; color:#16a34a; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;"><i class="fas fa-people-carry-box"></i></div>
+                    <h4 style="color:#0f172a; font-weight:800; font-size:1.1rem; margin:0 0 10px 0;">Chủ động thu gom rác sau hoạt động tập thể</h4>
+                    <p style="color:#475569; font-size:0.9rem; line-height:1.55; margin:0;">Các đoàn, nhóm, đơn vị tổ chức sự kiện phải thu gom toàn bộ rác sau chương trình. Không để lại banner, dây nhựa, chai nước, hộp thức ăn hoặc vật dụng trang trí.</p>
+                </div>
+
+                <!-- 14 -->
+                <div style="background:#f8fafc; border-radius:18px; padding:24px 20px; border:1px solid #e2e8f0; position:relative; grid-column: 1 / -1;">
+                    <span style="position:absolute; top:18px; right:18px; background:#16a34a; color:white; padding:3px 12px; border-radius:14px; font-weight:800; font-size:0.8rem;">14</span>
+                    <div style="width:50px; height:50px; background:#fef2f2; color:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px;"><i class="fas fa-triangle-exclamation"></i></div>
+                    <h4 style="color:#0f172a; font-weight:800; font-size:1.1rem; margin:0 0 10px 0;">Báo ngay khi phát hiện hành vi gây ô nhiễm</h4>
+                    <p style="color:#475569; font-size:0.9rem; line-height:1.55; margin:0;">Ghi nhận vị trí và thông báo cho chính quyền hoặc BQL địa phương để xử lý các hành vi xả rác, ô nhiễm. Các hành vi vi phạm có thể bị xử phạt theo <strong>Nghị định 45/2022/NĐ-CP</strong> về bảo vệ môi trường.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= TAB 4: LỊCH TRÌNH ================= -->
+    <section id="tab-lich-trinh" class="tab-content">
+        <h2 class="section-title">Gợi Ý Lịch Trình Tour</h2>
+        
+        <div class="itinerary-toggles">
+            <button class="iti-btn active" onclick="switchItinerary('1day')"><i class="fas fa-cog"></i> Tour 1 Ngày (Thạnh An)</button>
+            <button class="iti-btn" onclick="switchItinerary('2days')"><i class="fas fa-moon"></i> Tour 2 Ngày 1 Đêm (Thạnh An - Thiềng Liềng)</button>
+        </div>
+
+        <!-- 1 Day Itinerary (Matching Screenshot 2) -->
+        <div id="iti-1day" class="itinerary-view active">
+            <div class="tour-header-card">
+                <h3>Tour 1 Ngày: Thạnh An – Một ngày sống chậm giữa biển trời</h3>
+                <p>Hành trình trải nghiệm làng chài ven biển, đường đá chắn sóng, bè nuôi hải sản Trường Thạnh và hoàng hôn rực rỡ.</p>
+                <div class="tour-badges">
+                    <span class="tour-badge"><i class="far fa-clock"></i> 05:30 – 19:00</span>
+                    <span class="tour-badge"><i class="fas fa-users"></i> Nhóm bạn, gia đình</span>
+                    <span class="tour-badge"><i class="fas fa-walking"></i> Mức vận động: Nhẹ</span>
+                </div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-car"></i></div>
+                    <div class="timeline-time">05:30</div>
+                    <div class="timeline-content">
+                        <h4>Khởi hành từ trung tâm TP.HCM</h4>
+                        <p>Di chuyển theo đường Rừng Sác hướng về phà Bình Khánh và Bến tàu Tắc Xuất (Cần Giờ).</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><div style="font-size:0.75rem;">🎟️</div></div>
+                    <div class="timeline-time">08:30</div>
+                    <div class="timeline-content">
+                        <h4>Bến tàu Tắc Xuất - Mua vé sang đảo</h4>
+                        <p>Gửi xe tại bến tàu Tắc Xuất, mua vé tàu sang xã đảo Thạnh An <em>*(Nên kiểm tra lịch tàu trước ngày đi)*</em>.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-fish"></i></div>
+                    <div class="timeline-time">09:30</div>
+                    <div class="timeline-content">
+                        <h4>Bến tàu Thạnh An & Khám phá Làng chài</h4>
+                        <p>Khám phá con đường bê tông nhỏ trong khu dân cư, ngắm nhịp sống bến cá của người dân địa phương.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-camera"></i></div>
+                    <div class="timeline-time">10:00</div>
+                    <div class="timeline-content">
+                        <h4>Đường đá ven biển Thạnh An</h4>
+                        <p>Dạo bờ kè đá ngắm biển mênh mông, đón gió và lưu lại những bức ảnh kỷ niệm tuyệt đẹp.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-utensils"></i></div>
+                    <div class="timeline-time">11:00</div>
+                    <div class="timeline-content">
+                        <h4>Bè hải sản Trường Thạnh & Ăn trưa</h4>
+                        <p>Đi thuyền nhỏ ra bè hải sản Trường Thạnh tìm hiểu nuôi thủy sản & dùng bữa trưa hải sản tươi sống <em>*(Hàu nướng mỡ hành, tôm/cua hấp, cá chiên, lẩu hải sản)*</em>.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-shopping-bag"></i></div>
+                    <div class="timeline-time">13:30</div>
+                    <div class="timeline-content">
+                        <h4>Khu dân cư Thạnh Bình</h4>
+                        <p>Khám phá đường làng Thạnh Bình, ghé bến cá nhỏ và mua đặc sản hải sản khô về làm quà.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><div style="font-size:0.75rem;">🥥</div></div>
+                    <div class="timeline-time">14:30</div>
+                    <div class="timeline-content">
+                        <h4>Bờ kè Thạnh An - Thư giãn</h4>
+                        <p>Uống dừa nước mát lạnh tại bờ kè và ngắm cảnh cửa biển yên bình.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-ship"></i></div>
+                    <div class="timeline-time">15:30</div>
+                    <div class="timeline-content">
+                        <h4>Bến tàu Thạnh An về Tắc Xuất</h4>
+                        <p>Lên tàu trở về bến Tắc Xuất.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-coffee"></i></div>
+                    <div class="timeline-time">16:30</div>
+                    <div class="timeline-content">
+                        <h4>Trạm dừng chân Nhà Xanh Cần Giờ</h4>
+                        <p>Dừng ăn bánh canh tôm tịt và mua quà đặc sản Cần Giờ.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-home"></i></div>
+                    <div class="timeline-time">19:00</div>
+                    <div class="timeline-content">
+                        <h4>Về đến TP.HCM</h4>
+                        <p>Kết thúc chuyến trải nghiệm Thạnh An 1 ngày ý nghĩa.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2 Days Itinerary (Matching Screenshot 3 & 4) -->
+        <div id="iti-2days" class="itinerary-view">
+            <div class="tour-header-card">
+                <h3>Tour 2 Ngày 1 Đêm: Thạnh An – Thiềng Liềng: Hành trình làng chài và vị ngọt nghề muối</h3>
+                <p>Lưu trú Homestay Mười Gia (Thiềng Liềng), khám phá cung đường oval 4km, trải nghiệm làm muối & Đờn ca tài tử.</p>
+                <div class="tour-badges">
+                    <span class="tour-badge"><i class="far fa-clock"></i> 2 Ngày 1 Đêm</span>
+                    <span class="tour-badge"><i class="fas fa-home"></i> Homestay Mười Gia</span>
+                    <span class="tour-badge"><i class="fas fa-industry"></i> Trải nghiệm nghề muối</span>
+                </div>
+            </div>
+
+            <!-- Day 1 -->
+            <div style="text-align: center;">
+                <div class="day-header-pill">Ngày 1: TP.HCM – Thạnh An – Thiềng Liềng</div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-car"></i></div>
+                    <div class="timeline-time" style="font-size:0.85rem;">05:30 - 08:30</div>
+                    <div class="timeline-content">
+                        <h4>TP.HCM đến Bến Tắc Xuất</h4>
+                        <p>Khởi hành từ TP.HCM qua phà Bình Khánh sang bến Tắc Xuất mua vé tàu sang Thạnh An.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-camera"></i></div>
+                    <div class="timeline-time" style="font-size:0.85rem;">09:30 - 11:00</div>
+                    <div class="timeline-content">
+                        <h4>Đường đá ven biển Thạnh An</h4>
+                        <p>Dạo bờ kè đá chắn sóng ngắm biển và tham quan khu trung tâm xã đảo.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-utensils"></i></div>
+                    <div class="timeline-time">11:30</div>
+                    <div class="timeline-content">
+                        <h4>Hải sản – Homestay Trường Thạnh</h4>
+                        <p>Ăn trưa hải sản tươi sống tại khu phục vụ bè Trường Thạnh.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-ship"></i></div>
+                    <div class="timeline-time">13:30</div>
+                    <div class="timeline-content">
+                        <h4>Tàu thủy 7km sang ấp Thiềng Liềng</h4>
+                        <p>Di chuyển tuyến đường thủy 7km sang ấp đảo Thiềng Liềng yên bình.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-key"></i></div>
+                    <div class="timeline-time">14:30</div>
+                    <div class="timeline-content">
+                        <h4>Nhận phòng Homestay Mười Gia</h4>
+                        <p>Nhận phòng lưu trú tại Homestay Mười Gia <em>*(Phương án dự phòng: Ba Huyền, Chín Thơ, Thiềng Liềng Homestay)*</em>.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-bicycle"></i></div>
+                    <div class="timeline-time" style="font-size:0.85rem;">15:30 - 17:00</div>
+                    <div class="timeline-content">
+                        <h4>Cung đường oval Thiềng Liềng & Núi Giồng Chùa</h4>
+                        <p>Đạp xe cung đường oval 4km ngắm ruộng muối và tham quan núi đá Giồng Chùa.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><div style="font-size:0.75rem;">🌅</div></div>
+                    <div class="timeline-time">17:30</div>
+                    <div class="timeline-content">
+                        <h4>Ngắm hoàng hôn Ruộng muối Thiềng Liềng</h4>
+                        <p>Đón hoàng hôn lung linh trên cánh đồng muối kết tinh trắng xóa.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-concierge-bell"></i></div>
+                    <div class="timeline-time">18:30</div>
+                    <div class="timeline-content">
+                        <h4>Ăn tối tại Homestay Mười Gia</h4>
+                        <p>Thưởng thức cơm gia đình với cá kho/chiên, tôm hấp, canh chua cá và nước nha đam sương sâm.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-music"></i></div>
+                    <div class="timeline-time">20:00</div>
+                    <div class="timeline-content">
+                        <h4>Giao lưu Đờn ca tài tử</h4>
+                        <p>Giao lưu âm nhạc truyền thống Đờn ca tài tử cùng người dân địa phương.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 2 (Matching Screenshot 4) -->
+            <div style="text-align: center;">
+                <div class="day-header-pill" style="background:#0369a1;">Ngày 2: Trải nghiệm Thiềng Liềng – TP.HCM</div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-cog"></i></div>
+                    <div class="timeline-time" style="font-size:0.85rem;">06:00 - 07:00</div>
+                    <div class="timeline-content">
+                        <h4>Đón bình minh & Ăn sáng</h4>
+                        <p>Đón bình minh ruộng muối, ăn sáng cháo hải sản / bánh mì tôm tít tại Homestay Mười Gia.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-industry"></i></div>
+                    <div class="timeline-time">07:30</div>
+                    <div class="timeline-content">
+                        <h4>Trải nghiệm Nghề muối Thiềng Liềng</h4>
+                        <p>Học hỏi quy trình dẫn nước, phơi nước, cào muối và thu hoạch muối tinh khiết.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-anchor"></i></div>
+                    <div class="timeline-time">09:00</div>
+                    <div class="timeline-content">
+                        <h4>Làng bè nuôi hàu Kênh 50</h4>
+                        <p>Tham quan khu lồng bè nuôi hàu Kênh 50 trong rừng ngập mặn.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon"><i class="fas fa-ship"></i></div>
+                    <div class="timeline-time" style="font-size:0.85rem;">13:00 - 19:00</div>
+                    <div class="timeline-content">
+                        <h4>Lên tàu về đất liền - Trạm Nhà Xanh - TP.HCM</h4>
+                        <p>Trở về Thạnh An, nối chuyến về bến Tắc Xuất, ghé trạm dừng chân Nhà Xanh Cần Giờ và kết thúc tour tại TP.HCM lúc 19:00.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Red Alert Banner (Matching Screenshot 4) -->
+            <div class="red-alert-card">
+                <strong><i class="fas fa-exclamation-triangle"></i> LƯU Ý QUAN TRỌNG:</strong>
+                Lịch tàu, hoạt động làm muối, tham quan bè và chương trình tại Thiềng Liềng có thể thay đổi theo thời tiết, thủy triều và điều kiện vận hành. Du khách nên liên hệ xác nhận dịch vụ trước ngày khởi hành.
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for Place Details -->
+    <div id="place-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            <img src="3.jpg" alt="Place" id="modal-img" class="modal-banner">
+            <div class="modal-body">
+                <h3 id="modal-title" class="modal-title">Tên địa điểm</h3>
+                
+                <div class="modal-meta-grid" id="modal-meta-grid">
+                    <div class="modal-meta-item" id="meta-item-category">
+                        <i class="fas fa-tag"></i>
+                        <div>
+                            <strong>Phân loại</strong>
+                            <span id="modal-category">Ẩm thực</span>
+                        </div>
+                    </div>
+                    <div class="modal-meta-item" id="meta-item-price">
+                        <i class="fas fa-money-bill"></i>
+                        <div>
+                            <strong>Giá tham khảo</strong>
+                            <span id="modal-price">10.000đ - 50.000đ</span>
+                        </div>
+                    </div>
+                    <div class="modal-meta-item" id="meta-item-address">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <strong>Địa chỉ</strong>
+                            <span id="modal-address">Đảo Thạnh An</span>
+                        </div>
+                    </div>
+                    <div class="modal-meta-item" id="meta-item-phone">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <strong>Liên hệ</strong>
+                            <span id="modal-phone">Không có</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="modal-desc" class="modal-desc">
+                    Mô tả chi tiết về địa điểm này sẽ hiển thị ở đây...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>© 2026 Công trình Mùa hè Xanh UEL - Đảo Thạnh An.</p>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="thanh_an_geo.js"></script>
+    <script>
+        // --- 1. FIREBASE CONFIG ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAe5evR4GLSnTG4iTQAXH2uepOXAqZnYbE",
+            authDomain: "thanh-an-guidebook.firebaseapp.com",
+            projectId: "thanh-an-guidebook",
+            storageBucket: "thanh-an-guidebook.firebasestorage.app",
+            messagingSenderId: "267179583637",
+            appId: "1:267179583637:web:70d8835f66028844cd139c"
+        };
+        if (!firebase.apps || !firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        // --- 2. DRIVE IMAGE CONVERTER ---
+        function driveToImg(url) {
+            if (!url) return '3.jpg';
+            var m = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([^&]+)/);
+            return m ? 'https://lh3.googleusercontent.com/d/' + m[1] : url;
+        }
+
+        // --- 3. OFFICIAL 6 PLACES DATASET ---
+        const default6Places = [
+          {
+            id: 'p1_bo_ke_da',
+            name: 'Bờ kè đá Thạnh An',
+            category: 'sightseeing',
+            catLabel: 'Tham quan',
+            catIcon: 'fa-camera',
+            address: 'Bờ kè chắn sóng xã đảo Thạnh An',
+            description: 'Tuyến bờ kè ven biển là một trong những điểm check-in nổi bật nhất của đảo. Du khách có thể đi dạo đón gió, ngắm hoàng hôn và ghi lại những bức ảnh ấn tượng.',
+            image: 'https://drive.google.com/file/d/10k0qoXvY9cU1cYSK_vxbf7evmiQcdXfu/view?usp=drive_link',
+            lat: 10.472138787155915,
+            lng: 106.97791847182997
+          },
+          {
+            id: 'p2_lang_chai',
+            name: 'Làng chài Thạnh An',
+            category: 'sightseeing',
+            catLabel: 'Văn hóa & Làng chài',
+            catIcon: 'fa-anchor',
+            address: 'Trung tâm xã đảo Thạnh An',
+            description: 'Không gian làng chài mang đậm nét sinh hoạt của cư dân ven biển với bến cá, ghe thuyền và những con hẻm nhỏ yên bình.',
+            image: 'https://drive.google.com/file/d/144nv1zEWJz_8r-6njBHDHjMzjXMIp1Pu/view?usp=drive_link',
+            lat: 10.470838880405362,
+            lng: 106.97443592711399
+          },
+          {
+            id: 'p3_canh_dong_muoi',
+            name: 'Cánh đồng muối Thiềng Liềng',
+            category: 'sightseeing',
+            catLabel: 'Trải nghiệm eco',
+            catIcon: 'fa-sun',
+            address: 'Ấp đảo Thiềng Liềng, xã Thạnh An',
+            description: 'Những ruộng muối trải dài tạo nên cảnh quan đặc trưng của ấp đảo Thiềng Liềng. Vào mùa nắng, du khách có thể quan sát quy trình làm muối thủ công.',
+            image: 'https://drive.google.com/file/d/1oOCWfX1U3UX6bI9jb_K13CAkyiuSmb56/view?usp=drive_link',
+            lat: 10.516469110717948,
+            lng: 106.95303090512297
+          },
+          {
+            id: 'p4_giong_chua',
+            name: 'Núi Giồng Chùa',
+            category: 'sightseeing',
+            catLabel: '⛰️ Danh thắng',
+            catIcon: 'fa-mountain',
+            address: 'Ấp đảo Thiềng Liềng, xã Thạnh An',
+            description: 'Giồng Chùa là núi đá tự nhiên đặc biệt tại Thiềng Liềng, ngọn núi duy nhất của TP.HCM. Điểm đến thích hợp cho hoạt động tìm hiểu tự nhiên và chụp ảnh.',
+            image: 'https://drive.google.com/file/d/1eysNFXNy2TILUu_mFG4mPi1K7cR8NzDQ/view?usp=drive_link',
+            lat: 10.536843033249674,
+            lng: 106.97566075118243
+          },
+          {
+            id: 'p5_cung_duong_oval',
+            name: 'Cung đường vòng quanh Thiềng Liềng',
+            category: 'sightseeing',
+            catLabel: '🚴 Trải nghiệm',
+            catIcon: 'fa-bicycle',
+            address: 'Ấp đảo Thiềng Liềng, xã Thạnh An',
+            description: 'Con đường hình oval dài khoảng 4 km uốn quanh ruộng muối, sông rạch và rừng ngập mặn. Du khách có thể đi bộ hoặc đạp xe thư giãn.',
+            image: 'https://drive.google.com/file/d/179DYFLHYaENj8AhQlP1x38aDu_vgQgGA/view?usp=drive_link',
+            lat: 10.518500,
+            lng: 106.956000
+          },
+          {
+            id: 'p6_du_lich_cong_dong',
+            name: 'Không gian du lịch cộng đồng Thiềng Liềng',
+            category: 'accommodation',
+            catLabel: '🏡 Du lịch cộng đồng',
+            catIcon: 'fa-home',
+            address: 'Homestay Mười Gia, Ấp Thiềng Liềng',
+            description: 'Khu du lịch cộng đồng gồm nhiều hộ dân cung cấp dịch vụ như nghề muối, ẩm thực hải sản, homestay Mười Gia, làm bánh và giao lưu đờn ca tài tử.',
+            image: 'https://drive.google.com/file/d/1-4d-lhC6p9br-CvSlzk3u_pJ74hpWXJw/view?usp=drive_link',
+            lat: 10.512828549807393,
+            lng: 106.95365670785324
+          }
+        ];
+
+        // --- 4. TAB SWITCHING LOGIC ---
+        let mapInitialized = false;
+        let theMap = null;
+        
+        function switchTab(tabId) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            const targetBtn = document.querySelector(`.tab-btn[data-target="${tabId}"]`);
+            if(targetBtn) targetBtn.classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            const targetContent = document.getElementById(tabId);
+            if(targetContent) targetContent.classList.add('active');
+            
+            // Update URL query
+            history.pushState(null, null, `?tab=${tabId}`);
+
+            // Initialize map if switching to map tab
+            if (tabId === 'tab-kham-pha' && !mapInitialized) {
+                initMap();
+                loadPlacesFromFirebase();
+                mapInitialized = true;
+            }
+
+            try { applyLanguage(); } catch(e) {}
+        }
+
+        // --- 5. ITINERARY SWITCH LOGIC ---
+        function switchItinerary(type) {
+            document.querySelectorAll('.iti-btn').forEach(btn => btn.classList.remove('active'));
+            if(event && event.target) event.target.classList.add('active');
+            
+            document.querySelectorAll('.itinerary-view').forEach(view => view.classList.remove('active'));
+            document.getElementById(`iti-${type}`).classList.add('active');
+        }
+
+        // --- 6. MAP & FIREBASE LOGIC ---
+        let allPlaces = [];
+        let markers = [];
+
+        function initMap() {
+            // Center of Thanh An, zoom 12.8
+            theMap = L.map('map', {
+                center: [10.505, 106.960],
+                zoom: 12.8,
+                maxBounds: [[10.40, 106.85], [10.60, 107.05]],
+                maxBoundsViscosity: 1.0
+            });
+
+            // Satellite Layer (Esri)
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri World Imagery'
+            }).addTo(theMap);
+
+            // Draw exact red boundary for Thanh An island from GeoJSON
+            if (typeof thanhAnGeoData !== 'undefined') {
+                L.geoJSON(thanhAnGeoData, {
+                    style: {
+                        color: "#ef4444",
+                        weight: 3,
+                        opacity: 0.9,
+                        fillColor: "#ef4444",
+                        fillOpacity: 0.12
+                    }
+                }).addTo(theMap);
+            }
+        }
+
+        function getCategoryLabel(cat) {
+            const map = { 
+                'sightseeing': 'Tham quan', 'tham-quan': 'Tham quan',
+                'food': 'Ẩm thực', 'an-uong': 'Ẩm thực',
+                'accommodation': 'Lưu trú', 'luu-tru': 'Lưu trú',
+                'dich-vu': 'Dịch vụ'
+            };
+            return map[cat] || cat;
+        }
+        function getCategoryIcon(cat) {
+            const map = { 
+                'sightseeing': 'fa-camera', 'tham-quan': 'fa-camera',
+                'food': 'fa-utensils', 'an-uong': 'fa-utensils',
+                'accommodation': 'fa-bed', 'luu-tru': 'fa-bed',
+                'dich-vu': 'fa-concierge-bell'
+            };
+            return map[cat] || 'fa-map-marker-alt';
+        }
+
+        function loadPlacesFromFirebase() {
+            allPlaces = [...default6Places];
+
+            // Merge local places if added via admin
+            try {
+                let localPlaces = JSON.parse(localStorage.getItem('local_places') || '[]');
+                if (Array.isArray(localPlaces)) {
+                    localPlaces.forEach(lp => {
+                        if (lp && lp.name && !allPlaces.some(p => p.name === lp.name || p.id === lp.id)) {
+                            allPlaces.push(lp);
+                        }
+                    });
+                }
+            } catch(e) {}
+
+            db.collection("places").get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data && data.name) {
+                        const existingIdx = allPlaces.findIndex(p => p.id === doc.id || p.name === data.name);
+                        if (existingIdx >= 0) {
+                            allPlaces[existingIdx] = { id: doc.id, ...data };
+                        } else {
+                            allPlaces.push({ id: doc.id, ...data });
+                        }
+                    }
+                });
+                renderPlaces(allPlaces);
+                checkUrlPlaceParam();
+            }).catch((error) => {
+                console.log("Firebase places fetch error: ", error);
+                renderPlaces(allPlaces);
+                checkUrlPlaceParam();
+            });
+        }
+
+        function checkUrlPlaceParam() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const placeId = urlParams.get('placeId');
+            if (placeId) {
+                const place = allPlaces.find(p => p.id === placeId || p.name.includes(placeId));
+                if (place) openModal(place);
+            }
+        }
+
+        function renderPlaces(places) {
+            const grid = document.getElementById('places-grid');
+            grid.innerHTML = '';
+            
+            // Clear map markers
+            markers.forEach(m => theMap.removeLayer(m));
+            markers = [];
+
+            if (!places || places.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 20px;">Không tìm thấy địa điểm phù hợp.</div>';
+                return;
+            }
+
+            places.forEach(place => {
+                const rawImg = place.image || place.imageUrl || place.img || (place.images && place.images[0]);
+                const imgUrl = driveToImg(rawImg);
+                const catKey = place.category || place.type || 'sightseeing';
+                const catLabel = place.catLabel || getCategoryLabel(catKey);
+                const catIcon = place.catIcon || getCategoryIcon(catKey);
+                const descSnippet = place.description ? (place.description.substring(0, 90) + '...') : '';
+                
+                // DOM Card
+                const card = document.createElement('div');
+                card.className = 'place-card';
+                card.innerHTML = `
+                    <div class="place-img-wrapper" onclick="openModalById('${place.id}')">
+                        <img src="${imgUrl}" alt="${place.name}" class="place-img" onerror="this.src='3.jpg'">
+                        <span class="place-tag"><i class="fas ${catIcon}"></i> ${catLabel}</span>
+                    </div>
+                    <div class="place-info">
+                        <h3 class="place-title" onclick="openModalById('${place.id}')">${place.name}</h3>
+                        <div class="place-meta"><i class="fas fa-map-marker-alt" style="color:#0284c7;"></i> <span>${place.address || 'Xã đảo Thạnh An'}</span></div>
+                        <p style="font-size:0.88rem; color:#64748b; margin:6px 0 14px 0; line-height:1.4;">${descSnippet}</p>
+                        <div style="display:flex; gap:8px; margin-top:auto;">
+                            <button onclick="openModalById('${place.id}')" style="flex:1; background:#e0f2fe; color:#0369a1; border:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">
+                                📖 Xem review
+                            </button>
+                            ${place.lat && place.lng ? `
+                            <button onclick="focusMapMarker(${place.lat}, ${place.lng}, '${place.name}')" style="flex:1; background:#f0fdf4; color:#15803d; border:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">
+                                📍 Xem vị trí
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+
+                // Map Marker
+                if (place.lat && place.lng) {
+                    var catColor = '#0284c7';
+                    if (catKey === 'food' || catKey === 'an-uong' || (catLabel && catLabel.includes('Ẩm thực'))) catColor = '#ea580c';
+                    else if (catKey === 'accommodation' || catKey === 'luu-tru' || (catLabel && catLabel.includes('Lưu trú'))) catColor = '#2563eb';
+                    else if (catKey === 'dich-vu' || (catLabel && catLabel.includes('Dịch vụ'))) catColor = '#7c3aed';
+
+                    var customIcon = L.divIcon({
+                        className: 'custom-map-pin',
+                        html: `<div style="background:${catColor};color:white;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,0.4);border:2px solid white;font-size:14px;"><i class="fas ${catIcon}"></i></div>`,
+                        iconSize: [34, 34],
+                        iconAnchor: [17, 34],
+                        popupAnchor: [0, -34]
+                    });
+
+                    var popupHtml = `
+                        <div style="font-family:'Inter',sans-serif; width:220px; text-align:center;">
+                            <img src="${imgUrl}" style="width:100%; height:110px; object-fit:cover; border-radius:8px; margin-bottom:8px;" onerror="this.src='3.jpg'">
+                            <span style="background:${catColor}; color:white; padding:2px 8px; border-radius:12px; font-size:10px; font-weight:bold; display:inline-block; margin-bottom:4px;">${catLabel}</span>
+                            <h4 style="margin:4px 0; font-size:14px; font-weight:bold; color:#1e293b;">${place.name}</h4>
+                            <button onclick="openModalById('${place.id}')" style="display:inline-block; background:${catColor}; color:white; border:none; padding:6px 12px; border-radius:6px; font-size:11px; font-weight:bold; width:100%; box-sizing:border-box; margin-top:6px; cursor:pointer;">📖 Xem review chi tiết ➔</button>
+                        </div>
+                    `;
+
+                    const marker = L.marker([place.lat, place.lng], { icon: customIcon }).addTo(theMap)
+                        .bindPopup(popupHtml);
+                    marker.placeId = place.id;
+                    markers.push(marker);
+                }
+            });
+            try { applyLanguage(); } catch(e) {}
+        }
+
+        function focusMapMarker(lat, lng, name) {
+            if (!theMap) return;
+            theMap.setView([lat, lng], 15, { animate: true });
+            const m = markers.find(mk => mk.getLatLng().lat === lat && mk.getLatLng().lng === lng);
+            if (m) m.openPopup();
+            document.getElementById('map-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function openModalById(id) {
+            const place = allPlaces.find(p => p.id === id || p.name === id);
+            if (place) openModal(place);
+        }
+
+        // Filter Logic
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                const type = e.target.dataset.type;
+                if (type === 'all') {
+                    renderPlaces(allPlaces);
+                } else {
+                    const filtered = allPlaces.filter(p => {
+                        const c = (p.category || p.type || '').toLowerCase();
+                        if (type === 'sightseeing') return c.includes('sightseeing') || c.includes('tham-quan') || c.includes('tham quan');
+                        if (type === 'food') return c.includes('food') || c.includes('an-uong') || c.includes('ẩm thực') || c.includes('am-thuc');
+                        if (type === 'accommodation') return c.includes('accommodation') || c.includes('luu-tru') || c.includes('lưu trú');
+                        return c === type;
+                    });
+                    renderPlaces(filtered);
+                }
+            });
+        });
+
+        // --- 6. MODAL LOGIC ---
+        function openModal(place) {
+            const modal = document.getElementById('place-modal');
+            
+            document.getElementById('modal-img').src = driveToImg(place.image || place.images?.[0]);
+            document.getElementById('modal-title').textContent = place.name;
+            document.getElementById('modal-desc').innerHTML = place.description ? place.description.replace(/\n/g, '<br>') : 'Chưa có mô tả chi tiết.';
+            
+            document.getElementById('modal-category').textContent = getCategoryLabel(place.category);
+            document.getElementById('modal-price').textContent = place.price || 'Đang cập nhật';
+            document.getElementById('modal-address').textContent = place.address || 'Đảo Thạnh An';
+            document.getElementById('modal-phone').textContent = place.phone || 'Không có';
+            
+            modal.classList.add('active');
+            
+            // Update URL parameters without reloading
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('tab', 'tab-kham-pha');
+            urlParams.set('placeId', place.id);
+            history.pushState(null, null, `?${urlParams.toString()}`);
+            try { applyLanguage(); } catch(e) {}
+        }
+
+        function closeModal() {
+            document.getElementById('place-modal').classList.remove('active');
+            
+            // Remove placeId from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.delete('placeId');
+            history.pushState(null, null, `?${urlParams.toString()}`);
+        }
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('place-modal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // --- 7. INIT ON LOAD ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialTab = urlParams.get('tab');
+            const placeId = urlParams.get('placeId');
+            
+            if (placeId || initialTab === 'tab-kham-pha') {
+                switchTab('tab-kham-pha');
+            } else if (initialTab) {
+                switchTab(initialTab);
+            }
+        });
+
+    </script>
+    <script src="home.js?v=82"></script>
+</body>
+</html>

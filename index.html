@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cẩm Nang Điện Tử - Xã Đảo Thạnh An</title>
+  <link rel="icon" type="image/png" href="Huy_Hiệu_Đoàn.png">
+  <meta name="description" content="Cẩm nang điện tử hướng dẫn tham quan, lưu trú, ăn uống và bảo vệ môi trường tại xã đảo Thạnh An, TP.HCM">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="home.css?v=82">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <img src="logo.png" alt="Logo" class="logo-img">
+        <div class="logo-text">
+          <strong>CÔNG TRÌNH THANH NIÊN</strong>
+        </div>
+      </div>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html" class="active" id="nav-home">Trang chủ</a></li>
+        <li><a href="tong-quan.html" id="nav-intro">Giới thiệu chung</a></li>
+        <li><a href="cam-nang.html" id="nav-guide">Cẩm nang du lịch</a></li>
+        <li><a href="cam-nang-so.html" id="nav-digital">Cẩm nang số</a></li>
+        <li><a href="hinh-anh.html" id="nav-gallery">Hình ảnh</a></li>
+        <li><a href="#lien-he" id="nav-contact">Liên hệ</a></li>
+      </ul>
+      <div class="nav-right-actions">
+        <button class="lang-toggle-btn" onclick="toggleLanguage()" title="Switch language">
+          <i class="fas fa-globe"></i> <span id="lang-label">EN</span>
+        </button>
+        <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <section class="hero" id="hero">
+    <div class="hero-bg">
+      <img src="3.jpg" alt="Thạnh An" class="hero-bg-img" id="hero-bg-img">
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-content">
+      <h1 class="hero-title" id="hero-title" data-editable="hero-title" data-i18n="hero-title">THẠNH AN – NÉT ĐẸP CỦA XÃ ĐẢO</h1>
+      <p class="hero-subtitle" id="hero-subtitle" data-editable="hero-subtitle" data-i18n="hero-subtitle">Hướng dẫn tham quan, lưu trú, ẩm thực và bảo vệ môi trường tại xã đảo Thạnh An, TP.HCM</p>
+    </div>
+  </section>
+
+  <!-- STATS SECTION -->
+  <section class="stats-section" id="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-water"></i></div>
+        <div class="stat-info">
+          <span class="stat-label" data-i18n="stat-area-lbl">DIỆN TÍCH</span>
+          <span class="stat-value" data-editable="stat-area">131,31 km²</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-info">
+          <span class="stat-label" data-i18n="stat-pop-lbl">DÂN SỐ</span>
+          <span class="stat-value" data-editable="stat-pop">6.000+ người</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-ship"></i></div>
+        <div class="stat-info">
+          <span class="stat-label" data-i18n="stat-dist-lbl">KHOẢNG CÁCH</span>
+          <span class="stat-value" data-editable="stat-dist">~70 km từ trung tâm TP.HCM</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-home"></i></div>
+        <div class="stat-info">
+          <span class="stat-label" data-i18n="stat-ward-lbl">ẤP ĐẢO</span>
+          <span class="stat-value" data-editable="stat-ward">3 ấp</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTRO SECTION -->
+  <section class="intro-section" id="gioi-thieu">
+    <div class="intro-grid">
+      <div class="intro-map-col">
+        <div id="overview-map" class="map-container"></div>
+      </div>
+      <div class="intro-text-col">
+        <span class="intro-badge" data-i18n="intro-badge">CHÀO MỪNG ĐẾN VỚI</span>
+        <h2 class="intro-heading" id="intro-heading" data-editable="intro-heading" data-i18n="intro-heading">Xã Đảo Thạnh An</h2>
+        <div class="intro-body" id="intro-body" data-editable="intro-body">
+          <p data-i18n="intro-desc1">Thạnh An là một xã đảo thuộc Thành phố Hồ Chí Minh. Nơi đây mang nét đẹp mộc mạc, bình yên của làng chài truyền thống.</p>
+          <p data-i18n="intro-desc2">Tránh xa ồn ào phố thị, Thạnh An chào đón bạn bằng hương vị biển cả, những bữa hải sản tươi ngon và nụ cười đôn hậu của người dân xứ đảo.</p>
+        </div>
+        <ul class="intro-features">
+          <li><i class="fas fa-check-circle"></i> <span data-i18n="intro-f1">Làng chài bình yên</span></li>
+          <li><i class="fas fa-check-circle"></i> <span data-i18n="intro-f2">Hải sản tươi ngon, giá rẻ</span></li>
+          <li><i class="fas fa-check-circle"></i> <span data-i18n="intro-f3">Phát triển du lịch xanh</span></li>
+          <li><i class="fas fa-check-circle"></i> <span data-i18n="intro-f4">Di chuyển thuận tiện bằng phà</span></li>
+        </ul>
+        <a href="cam-nang.html?tab=tab-kham-pha" class="intro-cta" data-i18n="intro-cta">Xem chi tiết bản đồ →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- GREEN RULES SECTION -->
+  <section class="green-rules-section" id="quy-dinh" style="padding: 4.5rem 2rem; background: #f8fafc;">
+    <div class="section-header" style="text-align: center; margin-bottom: 2.5rem;">
+      <h2 class="section-title" style="color: #0369a1; font-size: 2.2rem; font-weight: 800; margin-bottom: 6px;" data-i18n="green-title">QUY ĐỊNH HẠN CHẾ RÁC THẢI NHỰA</h2>
+      <p class="section-subtitle" style="color: #64748b; font-size: 1rem;" data-i18n="green-subtitle">Cùng chung tay bảo vệ môi trường biển đảo</p>
+    </div>
+    <div class="green-grid-2x2" id="green-rules-grid">
+      <div class="green-card-horizontal">
+        <div class="card-left-icon">
+          <div class="icon-ring" style="background:#fef2f2; color:#ef4444; position:relative;">
+            <span style="position:absolute; top:-10px; background:#fecaca; color:#b91c1c; font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:10px;">01</span>
+            <i class="fas fa-ban"></i>
+          </div>
+        </div>
+        <div class="card-right-info">
+          <h3 data-i18n="rule-1-t" style="margin:0 0 6px 0; font-size:1.25rem; font-weight:800; color:#0f172a;">Không nhựa dùng một lần</h3>
+          <p data-i18n="rule-1-d" style="margin:0; color:#64748b; font-size:0.95rem; line-height:1.5;">Hạn chế mang ly, ống hút, túi nilon ra đảo.</p>
+        </div>
+      </div>
+      <div class="green-card-horizontal">
+        <div class="card-left-icon">
+          <div class="icon-ring" style="background:#f0f9ff; color:#0284c7; position:relative;">
+            <span style="position:absolute; top:-10px; background:#bae6fd; color:#0369a1; font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:10px;">02</span>
+            <i class="fas fa-wine-bottle"></i>
+          </div>
+        </div>
+        <div class="card-right-info">
+          <h3 data-i18n="rule-2-t" style="margin:0 0 6px 0; font-size:1.25rem; font-weight:800; color:#0f172a;">Mang bình cá nhân</h3>
+          <p data-i18n="rule-2-d" style="margin:0; color:#64748b; font-size:0.95rem; line-height:1.5;">Sử dụng bình nước cá nhân để giảm rác thải.</p>
+        </div>
+      </div>
+      <div class="green-card-horizontal">
+        <div class="card-left-icon">
+          <div class="icon-ring" style="background:#fefce8; color:#ca8a04; position:relative;">
+            <span style="position:absolute; top:-10px; background:#fef08a; color:#a16207; font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:10px;">03</span>
+            <i class="fas fa-recycle"></i>
+          </div>
+        </div>
+        <div class="card-right-info">
+          <h3 data-i18n="rule-3-t" style="margin:0 0 6px 0; font-size:1.25rem; font-weight:800; color:#0f172a;">Phân loại rác</h3>
+          <p data-i18n="rule-3-d" style="margin:0; color:#64748b; font-size:0.95rem; line-height:1.5;">Bỏ rác đúng nơi quy định, phân loại theo hướng dẫn.</p>
+        </div>
+      </div>
+      <div class="green-card-horizontal">
+        <div class="card-left-icon">
+          <div class="icon-ring" style="background:#f0fdf4; color:#16a34a; position:relative;">
+            <span style="position:absolute; top:-10px; background:#bbf7d0; color:#15803d; font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:10px;">04</span>
+            <i class="fas fa-water"></i>
+          </div>
+        </div>
+        <div class="card-right-info">
+          <h3 data-i18n="rule-4-t" style="margin:0 0 6px 0; font-size:1.25rem; font-weight:800; color:#0f172a;">Bảo vệ đại dương</h3>
+          <p data-i18n="rule-4-d" style="margin:0; color:#64748b; font-size:0.95rem; line-height:1.5;">Không vứt rác xuống biển, tôn trọng sinh vật biển.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPLORE / CATEGORY SECTION ("CẨM NANG HƯỚNG DẪN") -->
+  <section class="explore-section" id="kham-pha" style="padding: 4.5rem 2rem; background: white;">
+    <div class="section-header" style="text-align: center; margin-bottom: 2.5rem;">
+      <h2 class="section-title" style="color: #0369a1; font-size: 2.2rem; font-weight: 800; margin-bottom: 6px;" data-i18n="explore-title">CẨM NANG HƯỚNG DẪN</h2>
+      <p class="section-subtitle" style="color: #64748b; font-size: 1rem;" data-i18n="explore-subtitle">Tất cả thông tin bạn cần cho một chuyến đi trọn vẹn</p>
+    </div>
+    <div class="explore-grid" style="max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
+      <!-- Card 1: Cách di chuyển -->
+      <a href="cam-nang.html?tab=tab-di-chuyen" class="explore-card" style="text-decoration:none; background:white; border-radius:1.5rem; padding:2.5rem 1.5rem; text-align:center; display:flex; flex-direction:column; align-items:center; border:1.5px solid #bae6fd; box-shadow:0 10px 30px rgba(0,0,0,0.03);">
+        <div style="width:75px; height:75px; border-radius:50%; background:#0284c7; color:white; display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin-bottom:1.5rem;">
+          <i class="fas fa-ship"></i>
+        </div>
+        <h3 style="font-size:1.25rem; font-weight:800; color:#0f172a; margin:0 0 8px 0;">Cách di chuyển</h3>
+        <p style="font-size:0.9rem; color:#64748b; margin:0 0 1.5rem 0;">Tuyến đường, lịch phà & giá vé</p>
+        <span style="background:#e0f2fe; color:#0369a1; padding:8px 20px; border-radius:20px; font-weight:700; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">Khám phá ngay ➔</span>
+      </a>
+
+      <!-- Card 2: Khám phá địa điểm -->
+      <a href="cam-nang.html?tab=tab-kham-pha" class="explore-card" style="text-decoration:none; background:white; border-radius:1.5rem; padding:2.5rem 1.5rem; text-align:center; display:flex; flex-direction:column; align-items:center; border:1.5px solid #bae6fd; box-shadow:0 10px 30px rgba(0,0,0,0.03);">
+        <div style="width:75px; height:75px; border-radius:50%; background:#0369a1; color:white; display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin-bottom:1.5rem;">
+          <i class="fas fa-map-marked-alt"></i>
+        </div>
+        <h3 style="font-size:1.25rem; font-weight:800; color:#0f172a; margin:0 0 8px 0;">Khám phá địa điểm</h3>
+        <p style="font-size:0.9rem; color:#64748b; margin:0 0 1.5rem 0;">Tham quan, ăn uống & lưu trú</p>
+        <span style="background:#e0f2fe; color:#0369a1; padding:8px 20px; border-radius:20px; font-weight:700; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">Khám phá ngay ➔</span>
+      </a>
+
+      <!-- Card 3: Mẹo du lịch -->
+      <a href="cam-nang.html?tab=tab-meo" class="explore-card" style="text-decoration:none; background:white; border-radius:1.5rem; padding:2.5rem 1.5rem; text-align:center; display:flex; flex-direction:column; align-items:center; border:1.5px solid #fef08a; box-shadow:0 10px 30px rgba(0,0,0,0.03);">
+        <div style="width:75px; height:75px; border-radius:50%; background:#d97706; color:white; display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin-bottom:1.5rem;">
+          <i class="fas fa-lightbulb"></i>
+        </div>
+        <h3 style="font-size:1.25rem; font-weight:800; color:#0f172a; margin:0 0 8px 0;">Mẹo du lịch và các lưu ý</h3>
+        <p style="font-size:0.9rem; color:#64748b; margin:0 0 1.5rem 0;">Kinh nghiệm & quy định xanh</p>
+        <span style="background:#fef9c3; color:#b45309; padding:8px 20px; border-radius:20px; font-weight:700; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">Khám phá ngay ➔</span>
+      </a>
+
+      <!-- Card 4: Lịch trình cụ thể -->
+      <a href="cam-nang.html?tab=tab-lich-trinh" class="explore-card" style="text-decoration:none; background:white; border-radius:1.5rem; padding:2.5rem 1.5rem; text-align:center; display:flex; flex-direction:column; align-items:center; border:1.5px solid #fed7aa; box-shadow:0 10px 30px rgba(0,0,0,0.03);">
+        <div style="width:75px; height:75px; border-radius:50%; background:#ea580c; color:white; display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin-bottom:1.5rem;">
+          <i class="fas fa-calendar-alt"></i>
+        </div>
+        <h3 style="font-size:1.25rem; font-weight:800; color:#0f172a; margin:0 0 8px 0;">Lịch trình cụ thể</h3>
+        <p style="font-size:0.9rem; color:#64748b; margin:0 0 1.5rem 0;">Gợi ý tour 1 ngày & 2 ngày</p>
+        <span style="background:#ffedd5; color:#c2410c; padding:8px 20px; border-radius:20px; font-weight:700; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">Khám phá ngay ➔</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- FEATURED PLACES -->
+  <section class="featured-section" id="noi-bat">
+    <div class="section-header">
+      <h2 class="section-title" data-i18n="feat-title">ĐỊA ĐIỂM NỔI BẬT</h2>
+      <p class="section-subtitle" data-i18n="feat-subtitle">Khám phá những nét đặc trưng của Thạnh An</p>
+    </div>
+    <div class="featured-wrapper">
+      <button class="carousel-btn prev" onclick="moveCarousel(-1)"><i class="fas fa-chevron-left"></i></button>
+      <div class="featured-track-container">
+        <div class="featured-track" id="featured-track">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+      <button class="carousel-btn next" onclick="moveCarousel(1)"><i class="fas fa-chevron-right"></i></button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer" id="lien-he">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand-col">
+        <div class="footer-brand-row">
+          <img src="logo.png" alt="Logo" class="footer-logo">
+          <div class="footer-brand-text">
+            <strong>ĐOÀN TRƯỜNG ĐẠI HỌC KINH TẾ - LUẬT</strong>
+            <span>UEL'S HO CHI MINH COMMUNIST YOUTH UNION</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer-social">MẠNG XÃ HỘI</h4>
+        <ul>
+          <li><a href="https://www.facebook.com/share/183m2v3bUu/" target="_blank"><i class="fab fa-facebook fa-fw"></i> Facebook</a></li>
+          <li><a href="https://www.instagram.com/youth.uel" target="_blank"><i class="fab fa-instagram fa-fw"></i> Instagram</a></li>
+          <li><a href="https://www.tiktok.com/@teuthichdichoi" target="_blank"><i class="fab fa-tiktok fa-fw"></i> TikTok</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer-contact">THÔNG TIN LIÊN HỆ</h4>
+        <ul class="contact-list">
+          <li><i class="fas fa-phone"></i> <span>(028) 3 7244 555</span></li>
+          <li><i class="fas fa-envelope"></i> <span>doanthanhnien@uel.edu.vn</span></li>
+          <li><i class="fas fa-map-marker-alt"></i> <span data-i18n="footer-address">Phòng A.210, 669 Đỗ Mười, Linh Xuân, TP.HCM</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p data-i18n="footer-copy">© 2026 Đoàn Trường Đại học Kinh tế - Luật, ĐHQG-HCM.</p>
+    </div>
+  </footer>
+
+  <!-- ADMIN FAB -->
+  <button class="admin-fab" onclick="document.getElementById('admin-login-overlay').style.display='flex'" title="Quản trị">
+    <i class="fas fa-cog"></i>
+  </button>
+
+  <!-- ADMIN LOGIN -->
+  <div class="admin-login-overlay" id="admin-login-overlay">
+    <div class="admin-login-card">
+      <h3>Đăng nhập Quản trị</h3>
+      <input type="text" id="admin-user" placeholder="Tên đăng nhập">
+      <input type="password" id="admin-pass" placeholder="Mật khẩu">
+      <p id="admin-error" style="color:red; font-size:14px; margin-top:10px; display:none;">Sai thông tin đăng nhập!</p>
+      <div class="admin-actions">
+        <button onclick="document.getElementById('admin-login-overlay').style.display='none'">Hủy</button>
+        <button class="btn-primary" onclick="adminLogin()">Đăng nhập</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN TOOLBAR -->
+  <div class="admin-toolbar" id="admin-toolbar" style="display:none;">
+    <span>Chế độ chỉnh sửa</span>
+    <button onclick="changeHeroImage()">Đổi ảnh bìa</button>
+    <button onclick="saveEdits()">Lưu thay đổi</button>
+    <button onclick="cancelEdits()">Hủy</button>
+    <button onclick="adminLogout()" style="margin-left:auto; background: #e11d48;">Đăng xuất</button>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- SCROLL TOP -->
+  <button class="scroll-top-fab" id="scroll-top-fab" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="thanh_an_geo.js?v=83"></script>
+  <script src="home.js?v=82"></script>
+</body>
+</html>

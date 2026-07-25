@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mẹo du lịch - Xã Đảo Thạnh An</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="home.css?v=82">
+  
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --primary: #0d9488;
+      --primary-dark: #0f766e;
+      --text-dark: #1a2332;
+      --bg-light: #f0f5fb;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-light); margin: 0; }
+    .page-header {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: white; height: 250px; display: flex; flex-direction: column;
+      justify-content: center; align-items: center; margin-top: 70px;
+    }
+    .page-header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+    .breadcrumb a { color: white; text-decoration: none; }
+    
+    .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+    
+    .tips-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;
+    }
+    .tip-card {
+      background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      transition: 0.3s;
+    }
+    .tip-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(13,148,136,0.15); }
+    .tip-icon { font-size: 2rem; color: var(--primary); margin-bottom: 15px; }
+    .tip-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; color: var(--text-dark); }
+  </style>
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <img src="logo.png" alt="Logo" class="logo-img">
+        <div class="logo-text"><strong>CÔNG TRÌNH THANH NIÊN</strong></div>
+      </div>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="tong-quan.html">Tổng quan</a></li>
+        <li><a href="di-chuyen.html">Di chuyển</a></li>
+        <li><a href="dia-diem.html">Địa điểm</a></li>
+        <li><a href="am-thuc.html">Ẩm thực</a></li>
+        <li><a href="luu-tru.html">Lưu trú</a></li>
+        <li><a href="meo-du-lich.html" class="active">Mẹo du lịch</a></li>
+        <li><a href="lich-trinh.html">Lịch trình</a></li>
+        <li><a href="hinh-anh.html">Hình ảnh</a></li>
+        <li><a href="index.html#lien-he">Liên hệ</a></li>
+      </ul>
+      <div class="nav-right-actions">
+        <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>Mẹo Du Lịch</h1>
+    <div class="breadcrumb"><a href="index.html">Trang chủ</a> > <span>Mẹo du lịch</span></div>
+  </div>
+
+  <div class="container">
+    <div class="tips-grid" id="tips-grid">
+      <!-- Tips -->
+      <div class="tip-card"><i class="fas fa-backpack tip-icon"></i><div class="tip-title">Chuẩn bị gì?</div><p>Mang theo giấy tờ tùy thân, tiền mặt, thuốc men cơ bản.</p></div>
+      <div class="tip-card"><i class="fas fa-cloud-sun tip-icon"></i><div class="tip-title">Thời điểm?</div><p>Tránh mùa mưa bão (tháng 9-11). Tốt nhất là mùa khô.</p></div>
+      <div class="tip-card"><i class="fas fa-wifi tip-icon"></i><div class="tip-title">Sóng điện thoại</div><p>Sóng có thể yếu ở một số khu vực trên đảo, nên chuẩn bị sim 4G mạnh.</p></div>
+      <div class="tip-card"><i class="fas fa-bug tip-icon"></i><div class="tip-title">Chống muỗi</div><p>Đảo có nhiều muỗi vào chiều tối, cần mang theo kem chống muỗi.</p></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand-col">
+        <div class="footer-brand-row">
+          <img src="logo.png" alt="Logo" class="footer-logo">
+          <div class="footer-brand-text">
+            <strong>ĐOÀN TRƯỜNG ĐẠI HỌC KINH TẾ - LUẬT</strong>
+          </div>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>THÔNG TIN LIÊN HỆ</h4>
+        <ul class="contact-list">
+          <li><i class="fas fa-phone"></i> <span>(028) 3 7244 555</span></li>
+          <li><i class="fas fa-envelope"></i> <span>doanthanhnien@uel.edu.vn</span></li>
+          <li><i class="fas fa-map-marker-alt"></i> <span>Phòng A.210, 669 Đỗ Mười, Linh Xuân, TP.HCM</span></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    if (!firebase.apps || !firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyAe5evR4GLSnTG4iTQAXH2uepOXAqZnYbE",
+        authDomain: "thanh-an-guidebook.firebaseapp.com",
+        projectId: "thanh-an-guidebook",
+        storageBucket: "thanh-an-guidebook.firebasestorage.app",
+        messagingSenderId: "267179583637",
+        appId: "1:267179583637:web:70d8835f66028844cd139c"
+      });
+    }
+  </script>
+  <script src="home.js?v=82"></script>
+</body>
+</html>

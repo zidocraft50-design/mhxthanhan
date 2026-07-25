@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản trị - Cẩm nang Thạnh An</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore-compat.js"></script>
+    <!-- SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <link rel="stylesheet" href="quanly.css">
+</head>
+<body>
+
+    <!-- Login Screen -->
+    <div id="auth-screen">
+        <div class="login-box">
+            <i class="fas fa-shield-alt icon"></i>
+            <h2>ĐĂNG NHẬP QUẢN TRỊ</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Tài khoản</label>
+                    <input type="text" id="login-username" required placeholder="Nhập tài khoản">
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="login-password" required placeholder="Nhập mật khẩu">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Đăng nhập</button>
+                <div id="auth-error">Tài khoản hoặc mật khẩu không đúng!</div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="dashboard">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-cog"></i>
+                <span>QUẢN TRỊ CẨM NANG</span>
+            </div>
+            <div class="nav-actions">
+                <a href="index.html" class="btn btn-secondary" target="_blank"><i class="fas fa-home"></i> Xem trang</a>
+                <button id="btn-logout" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+            </div>
+        </nav>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="menu-item active" data-target="overview">
+                <i class="fas fa-chart-bar"></i> Tổng quan
+            </div>
+            <div class="menu-item" data-target="home-config">
+                <i class="fas fa-home"></i> Trang chủ
+            </div>
+            <div class="menu-item" data-target="places">
+                <i class="fas fa-map-marker-alt"></i> Địa điểm
+            </div>
+            <div class="menu-item" data-target="categories">
+                <i class="fas fa-folder-open"></i> Danh mục
+            </div>
+            <div class="menu-item" data-target="transport-itineraries">
+                <i class="fas fa-ship"></i> Di chuyển & Lịch trình
+            </div>
+            <div class="menu-item" data-target="travel-tips">
+                <i class="fas fa-lightbulb"></i> Mẹo du lịch và các lưu ý
+            </div>
+            <div class="menu-item" data-target="green-rules">
+                <i class="fas fa-recycle"></i> Quy định xanh
+            </div>
+            <div class="menu-item" data-target="gallery">
+                <i class="fas fa-images"></i> Thư viện ảnh
+            </div>
+            <div class="menu-item" data-target="news">
+                <i class="fas fa-newspaper"></i> Tin tức
+            </div>
+            <div class="menu-item" data-target="pdf-config">
+                <i class="fas fa-file-pdf" style="color:#ef4444;"></i> Cẩm nang số (File PDF)
+            </div>
+            <div class="menu-item" data-target="excel">
+                <i class="fas fa-file-excel"></i> Nhập Excel
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <!-- Tổng quan -->
+            <section id="overview" class="section-container active">
+                <div class="section-header">
+                    <h2 class="section-title">Tổng quan hệ thống</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="stat-info">
+                            <h3 id="stat-places">0</h3>
+                            <p>Tổng địa điểm</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-folder"></i></div>
+                        <div class="stat-info">
+                            <h3 id="stat-cats">0</h3>
+                            <p>Tổng danh mục</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-newspaper"></i></div>
+                        <div class="stat-info">
+                            <h3 id="stat-news">0</h3>
+                            <p>Bài viết tin tức</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trang chủ -->
+            <section id="home-config" class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">Cấu hình trang chủ</h2>
+                    <button class="btn btn-primary" onclick="saveHomeConfig()">Lưu thay đổi</button>
+                </div>
+                <div class="card">
+                    <form id="form-home-config" class="form-grid">
+                        <div class="form-group form-full">
+                            <label>Tiêu đề trang</label>
+                            <input type="text" id="hc-title">
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Mô tả ngắn</label>
+                            <textarea id="hc-desc" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Tổng diện tích</label>
+                            <input type="text" id="hc-area">
+                        </div>
+                        <div class="form-group">
+                            <label>Tổng dân số</label>
+                            <input type="text" id="hc-pop">
+                        </div>
+                        <div class="form-group">
+                            <label>Khoảng cách (km)</label>
+                            <input type="text" id="hc-dist">
+                        </div>
+                        <div class="form-group">
+                            <label>Đặc trưng</label>
+                            <input type="text" id="hc-feat">
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Nội dung giới thiệu chi tiết</label>
+                            <textarea id="hc-about" rows="5"></textarea>
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Link ảnh Banner (Google Drive/URL)</label>
+                            <input type="text" id="hc-banner">
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Địa điểm -->
+            <section id="places" class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">Quản lý địa điểm</h2>
+                    <button class="btn btn-primary" onclick="openPlaceModal()"><i class="fas fa-plus"></i> Thêm địa điểm mới</button>
+                </div>
+                <div class="card">
+                    <div class="form-group">
+                        <input type="text" id="search-place" placeholder="Tìm kiếm địa điểm..." onkeyup="filterPlaces()">
+                    </div>
+                    <div class="data-list" id="places-list">
+                        <!-- Danh sách render JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Danh mục -->
+            <section id="categories" class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">Quản lý danh mục</h2>
+                    <button class="btn btn-primary" onclick="openCategoryModal()"><i class="fas fa-plus"></i> Thêm danh mục</button>
+                </div>
+                <div class="card">
+                    <h3>Danh mục mặc định</h3>
+                    <div class="data-list" id="default-categories-list" style="margin-bottom: 2rem;"></div>
+                    
+                    <h3>Danh mục tùy chỉnh</h3>
+                    <div class="data-list" id="custom-categories-list"></div>
+                </div>
+            </section>
+
+            <!-- Di chuyển & Lịch trình -->
+            <section id="transport-itineraries" class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">Di chuyển & Lịch trình</h2>
+                    <button class="btn btn-primary" onclick="saveTransport()">Lưu thay đổi</button>
+                </div>
+                <div class="card">
+                    <h3>Lịch phà / Tàu</h3>
+                    <div class="form-grid" style="margin-bottom: 2rem;">
+                        <div class="form-group">
+                            <label>Tiếng Việt</label>
+                            <textarea id="tg-schedule-vi" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Tiếng Anh</label>
+                            <textarea id="tg-schedule-en" rows="4"></textarea>
+                        </div>
+                    </div>
+
+                    <h3>Các bước di chuyển</h3>
+                    <button class="btn btn-secondary" onclick="addTgStep()" style="margin-bottom: 1rem;"><i class="fas fa-plus"></i> Thêm bước</button>
+                    <div id="tg-steps-container" style="margin-bottom: 2rem;"></div>
+
+                    <h3>Lịch trình cụ thể (Gợi ý)</h3>
+                    <button class="btn btn-secondary" onclick="addItinerary()" style="margin-bottom: 1rem;"><i class="fas fa-plus"></i> Thêm lịch trình</button>
+                    <div id="itineraries-container"></div>
+                </div>
+            </section>
+
+            <!-- Mẹo du lịch -->
+            <section id="travel-tips" class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">Mẹo du lịch</h2>
+                    <button class="btn btn-primary" onclick="saveTips()">Lưu thay đổi</button>
+                </div>
+                <div class="card">
+                    <button class="btn btn-secondary" onclick="addTgTip()" style="margin-bottom: 1rem;"><i class="fas fa-plus"></i> Thêm mẹo</button>
+                    <div id="tg-tips-container"></div>
+                </div>
+            </section>
+
+            <!-- Quy định xanh -->
+            <section id="green-rules" class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">Quy định xanh</h2>
+                    <button class="btn btn-primary" onclick="saveGreenRules()">Lưu tất cả</button>
+                </div>
+                <div class="card">
+                    <button class="btn btn-secondary" onclick="addGreenRule()" style="margin-bottom: 1rem;"><i class="fas fa-plus"></i> Thêm quy định</button>
+                    <div id="green-rules-container"></div>
+                </div>
+            </section>
+
+            <!-- Thư viện ảnh -->
+            <section id="gallery" class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">🖼️ Thư viện ảnh MHX & Xã Đảo Thạnh An</h2>
+                    <button class="btn btn-primary" onclick="saveGallery()" style="background:#0284c7; font-weight:700; padding:10px 22px; border-radius:10px;"><i class="fas fa-save"></i> Lưu tất cả ảnh</button>
+                </div>
+                <div class="card" style="border-radius:16px; padding:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:10px;">
+                        <button class="btn btn-secondary" onclick="addGalleryImage()" style="background:#0f172a; color:white; font-weight:700; border-radius:10px; padding:10px 18px;"><i class="fas fa-plus-circle"></i> Thêm ảnh mới</button>
+                        <span style="color:#64748b; font-size:0.88rem; font-weight:600;">ℹ️ Chọn đúng Phân loại danh mục (Biển đảo, Làng chài, Thiềng Liềng, Ẩm thực, Sự kiện) để ảnh hiển thị đúng tab ở Thư viện!</span>
+                    </div>
+                    <div id="gallery-container"></div>
+                </div>
+            </section>
+
+            <!-- Tin tức -->
+            <section id="news" class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">Tin tức & Sự kiện</h2>
+                    <button class="btn btn-primary" onclick="saveNews()">Lưu tất cả</button>
+                </div>
+                <div class="card">
+                    <button class="btn btn-secondary" onclick="addNewsItem()" style="margin-bottom: 1rem;"><i class="fas fa-plus"></i> Thêm tin tức</button>
+                    <div id="news-container"></div>
+                </div>
+            </section>
+
+            <!-- Nhập Excel -->
+            <section id="excel" class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">Nhập dữ liệu từ Excel</h2>
+                </div>
+                <div class="card">
+                    <p style="margin-bottom: 1.5rem; color: var(--text-muted);">
+                        Sử dụng tính năng này để nhập hàng loạt dữ liệu địa điểm, danh mục, quy định và tin tức từ file Excel.
+                    </p>
+                    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                        <button class="btn btn-secondary" onclick="downloadExcelTemplate()"><i class="fas fa-download"></i> Tải file mẫu</button>
+                        <input type="file" id="excel-file" accept=".xlsx, .xls" style="display: none;" onchange="handleExcelUpload(event)">
+                        <button class="btn btn-primary" onclick="document.getElementById('excel-file').click()"><i class="fas fa-upload"></i> Chọn file & Nhập</button>
+                    </div>
+
+                    <div id="progress-panel">
+                        <h4>Tiến trình xử lý</h4>
+                        <p id="progress-text">Đang xử lý...</p>
+                        <div id="progress-bar"><div id="progress-fill"></div></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quản lý Cẩm nang số (Tải file PDF) -->
+            <section id="pdf-config" class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">📘 Quản lý Cẩm nang số (Tải file PDF / Tài liệu)</h2>
+                </div>
+
+                <div class="card" style="margin-bottom: 25px;">
+                    <h3 style="margin-top:0; color:#0f172a; font-size:1.2rem; font-weight:800;">📤 Tải file PDF Cẩm nang từ máy tính</h3>
+                    <p style="color:#64748b; font-size:0.92rem; margin-bottom: 20px;">
+                        Tải file PDF Cẩm nang Thạnh An trực tiếp từ thiết bị của bạn. File sẽ tự động hiển thị dưới dạng Sách lật 3D tương tác trên trang <strong>Cẩm nang số</strong>.
+                    </p>
+
+                    <div style="display:flex; flex-direction:column; gap:16px; max-width:600px;">
+                        <div>
+                            <label style="font-weight:700; color:#334155; display:block; margin-bottom:8px;">Chọn tệp PDF (.pdf):</label>
+                            <input type="file" id="pdf-file-upload-input" accept="application/pdf" class="form-control" style="padding:10px; border:1.5px solid #cbd5e1; border-radius:10px; width:100%;">
+                        </div>
+
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <button type="button" class="btn btn-primary" onclick="handlePdfUploadSubmit()" style="background:#0284c7; border:none; padding:12px 24px; border-radius:10px; font-weight:700;">
+                                <i class="fas fa-upload"></i> Tải file & Lưu Cẩm nang số
+                            </button>
+                            <span id="pdf-upload-status" style="font-size:0.9rem; font-weight:600; color:#059669;"></span>
+                        </div>
+
+                        <!-- Progress Bar Box -->
+                        <div id="pdf-progress-box" style="display:none; margin-top:10px; width:100%;">
+                            <div style="display:flex; justify-content:space-between; font-size:0.88rem; font-weight:700; color:#0369a1; margin-bottom:6px;">
+                                <span id="pdf-progress-text">Đang đọc file PDF... 0%</span>
+                                <span id="pdf-progress-size">0 MB / 0 MB</span>
+                            </div>
+                            <div style="width:100%; height:12px; background:#e2e8f0; border-radius:10px; overflow:hidden;">
+                                <div id="pdf-progress-bar-fill" style="width:0%; height:100%; background:linear-gradient(90deg, #0284c7, #10b981); transition:width 0.15s ease;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-top:0; color:#0f172a; font-size:1.2rem; font-weight:800;">🔗 Hoặc Nhập Đường dẫn Link File PDF (Google Drive / Dropbox)</h3>
+                    <p style="color:#64748b; font-size:0.92rem; margin-bottom: 20px;">
+                        Dán đường dẫn link xem trực tiếp file PDF trên Google Drive / Dropbox nếu file dung lượng lớn:
+                    </p>
+
+                    <div style="display:flex; flex-direction:column; gap:16px; max-width:600px;">
+                        <div>
+                            <label style="font-weight:700; color:#334155; display:block; margin-bottom:8px;">Link URL File PDF:</label>
+                            <input type="url" id="pdf-url-link-input" placeholder="https://drive.google.com/file/d/..." class="form-control" style="padding:10px; border:1.5px solid #cbd5e1; border-radius:10px; width:100%;">
+                        </div>
+
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <button type="button" class="btn btn-primary" onclick="handlePdfUrlSubmit()" style="background:#0284c7; border:none; padding:12px 24px; border-radius:10px; font-weight:700;">
+                                <i class="fas fa-link"></i> Lưu Link URL PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="current-pdf-info-box" style="margin-top:25px; padding:18px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px;">
+                        <strong style="color:#0369a1; font-size:1rem; display:block; margin-bottom:6px;">📄 File Cẩm nang số hiện tại:</strong>
+                        <span id="current-pdf-filename-display" style="color:#334155; font-weight:600;">Chưa có file nào được tải lên.</span>
+                        <div style="margin-top:12px; display:flex; gap:10px;">
+                            <a href="cam-nang-so.html" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none;"><i class="fas fa-eye"></i> Xem trước Sách Lật 3D</a>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteCurrentPdf()"><i class="fas fa-trash-alt"></i> Xóa File</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Place Modal -->
+    <div class="modal-overlay" id="place-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="place-modal-title">Thêm địa điểm mới</h3>
+                <button class="close-modal" onclick="closePlaceModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="place-form" class="form-grid">
+                    <input type="hidden" id="p-id">
+                    <div class="form-group form-full">
+                        <label>Tên địa điểm *</label>
+                        <input type="text" id="p-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tên tiếng Anh</label>
+                        <input type="text" id="p-nameEn">
+                    </div>
+                    <div class="form-group">
+                        <label>Danh mục *</label>
+                        <select id="p-type" required></select>
+                    </div>
+                    <div class="form-group form-full">
+                        <label>Mô tả tiếng Việt</label>
+                        <textarea id="p-desc" rows="3"></textarea>
+                    </div>
+                    <div class="form-group form-full">
+                        <label>Mô tả tiếng Anh</label>
+                        <textarea id="p-descEn" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Vĩ độ (Latitude) *</label>
+                        <input type="number" id="p-lat" step="0.000001" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kinh độ (Longitude) *</label>
+                        <input type="number" id="p-lng" step="0.000001" required>
+                    </div>
+                    
+                    <div class="form-group form-full">
+                        <label>Chọn vị trí trên bản đồ</label>
+                        <div id="mini-map"></div>
+                    </div>
+
+                    <div class="form-group form-full">
+                        <label>Link ảnh (Google Drive - mỗi link 1 dòng)</label>
+                        <textarea id="p-images" rows="4" onchange="updateImagePreviews()"></textarea>
+                        <div class="img-preview-container" id="p-img-preview"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Địa chỉ</label>
+                        <input type="text" id="p-address">
+                    </div>
+                    <div class="form-group">
+                        <label>Liên hệ</label>
+                        <input type="text" id="p-contact">
+                    </div>
+                    <div class="form-group form-full">
+                        <label>Giá tham khảo</label>
+                        <input type="text" id="p-price">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePlaceModal()">Hủy</button>
+                <button class="btn btn-primary" onclick="savePlace()">Lưu địa điểm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div class="modal-overlay" id="cat-modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 id="cat-modal-title">Thêm danh mục</h3>
+                <button class="close-modal" onclick="closeCategoryModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="cat-form" class="form-grid">
+                    <input type="hidden" id="c-id">
+                    <div class="form-group form-full">
+                        <label>Tên danh mục *</label>
+                        <input type="text" id="c-name" required>
+                    </div>
+                    <div class="form-group form-full">
+                        <label>Tên tiếng Anh</label>
+                        <input type="text" id="c-nameEn">
+                    </div>
+                    <div class="form-group">
+                        <label>Icon (Class FontAwesome)</label>
+                        <input type="text" id="c-icon" placeholder="fas fa-star" onkeyup="document.getElementById('c-icon-preview').className = this.value">
+                        <div style="margin-top: 0.5rem;">Preview: <i id="c-icon-preview"></i></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Màu sắc</label>
+                        <input type="color" id="c-color" value="#0d9488" style="height: 40px; padding: 2px;">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCategoryModal()">Hủy</button>
+                <button class="btn btn-primary" onclick="saveCategory()">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="quanly.js"></script>
+</body>
+</html>

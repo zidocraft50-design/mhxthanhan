@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/quanly", "destination": "/quanly.html" }
+  ],
+  "cleanUrls": true
+}

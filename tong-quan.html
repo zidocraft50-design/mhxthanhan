@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giới Thiệu Chung - Xã Đảo Thạnh An</title>
+  <link rel="icon" type="image/png" href="Huy_Hiệu_Đoàn.png">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="home.css?v=82">
+  
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+
+    /* Page Header Banner */
+    .page-header-bg {
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.88) 0%, rgba(3, 105, 161, 0.85) 100%), url('3.jpg') center/cover no-repeat !important;
+      color: white;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 135px 20px 50px 20px !important;
+      position: relative;
+      box-sizing: border-box;
+      box-shadow: inset 0 -10px 25px rgba(0,0,0,0.15);
+    }
+    .page-header-bg h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin: 0 0 10px 0;
+      letter-spacing: -0.5px;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+    }
+    .page-header-bg p {
+      color: #f0f9ff;
+      font-size: 1.05rem;
+      margin: 0;
+      font-weight: 500;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Container */
+    .tq-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 35px 20px 60px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* ROW 1: TOP 5 STAT CARDS GRID */
+    .top-5-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 1024px) {
+      .top-5-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .top-5-grid { grid-template-columns: 1fr; }
+    }
+
+    .stat-pill-card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+      border: 1.5px solid #e2e8f0;
+      transition: all 0.25s ease;
+    }
+    .stat-pill-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px rgba(2, 132, 199, 0.15);
+      border-color: #38bdf8;
+    }
+    .stat-pill-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    }
+    .icon-teal { background: linear-gradient(135deg, #0d9488, #14b8a6); color: white; }
+    .icon-blue { background: linear-gradient(135deg, #0284c7, #38bdf8); color: white; }
+    .icon-emerald { background: linear-gradient(135deg, #059669, #10b981); color: white; }
+    .icon-purple { background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; }
+    .icon-amber { background: linear-gradient(135deg, #d97706, #f59e0b); color: white; }
+
+    .stat-pill-info { display: flex; flex-direction: column; }
+    .stat-pill-label { font-size: 0.78rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-pill-val { font-size: 0.96rem; font-weight: 800; color: #0f172a; margin-top: 2px; }
+
+    /* ROW 2: QUICK OVERVIEW BANNER CARD */
+    .quick-overview-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+      border-radius: 22px;
+      padding: 28px 32px;
+      border: 2px solid #bae6fd;
+      box-shadow: 0 8px 25px rgba(2, 132, 199, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    @media (max-width: 768px) {
+      .quick-overview-card { flex-direction: column; text-align: center; }
+    }
+    .quick-overview-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      flex-shrink: 0;
+      box-shadow: 0 6px 18px rgba(2, 132, 199, 0.3);
+    }
+    .quick-overview-text h3 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #0369a1;
+      margin: 0 0 8px 0;
+    }
+    .quick-overview-text p {
+      margin: 0;
+      color: #334155;
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+    .quick-watermark {
+      position: absolute;
+      right: 25px;
+      bottom: -15px;
+      font-size: 7.5rem;
+      color: rgba(2, 132, 199, 0.05);
+      pointer-events: none;
+    }
+
+    /* ROW 3 & 4: 2-COLUMN FEATURED SECTIONS */
+    .split-2col-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+    @media (max-width: 900px) {
+      .split-2col-grid { grid-template-columns: 1fr; }
+    }
+
+    .feature-block-card {
+      background: #ffffff;
+      border-radius: 22px;
+      padding: 30px;
+      border: 1.5px solid #e2e8f0;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .block-header-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .block-header-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+    }
+    .block-header-icon.icon-teal-bg {
+      background: linear-gradient(135deg, #0d9488, #0f766e);
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+    }
+
+    .block-header-row h2 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0;
+    }
+
+    .feature-block-card p {
+      color: #475569;
+      font-size: 0.98rem;
+      line-height: 1.68;
+      margin: 0 0 16px 0;
+    }
+
+    .pill-tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .pill-tag {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+    .pill-tag.tag-green {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+      color: #047857;
+    }
+
+    /* Right Stat List vertical stack */
+    .vertical-stat-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: space-between;
+    }
+    .v-stat-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px 20px;
+      border: 1.5px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.02);
+      transition: all 0.2s ease;
+      flex: 1;
+    }
+    .v-stat-card:hover {
+      transform: translateX(4px);
+      border-color: #7dd3fc;
+    }
+    .v-stat-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+    .vs-blue { background: #e0f2fe; color: #0284c7; }
+    .vs-purple { background: #f3e8ff; color: #7c3aed; }
+    .vs-rose { background: #ffe4e6; color: #e11d48; }
+    .vs-amber { background: #fef3c7; color: #d97706; }
+
+    .v-stat-title { font-size: 1.1rem; font-weight: 800; color: #0f172a; }
+    .v-stat-sub { font-size: 0.88rem; color: #64748b; margin-top: 2px; }
+
+    /* RIGHT 4 MINI CARDS GRID (2x2 STACKED PERFECTLY TO ELIMINATE EMPTY BOTTOM SPACE!) */
+    .mini-4cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      height: 100%;
+    }
+    .mini-card {
+      border-radius: 18px;
+      padding: 18px 16px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      transition: all 0.25s ease;
+    }
+    .mini-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    /* 4 Distinct Rich Color Themes for the 4 Mini Cards */
+    .mc-blue {
+      background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+      border: 1.5px solid #bae6fd;
+    }
+    .mc-blue .mini-card-icon { background: linear-gradient(135deg, #0284c7, #0369a1); color: white; }
+    .mc-blue .mini-card-badge { background: #e0f2fe; color: #0369a1; }
+
+    .mc-amber {
+      background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%);
+      border: 1.5px solid #fde68a;
+    }
+    .mc-amber .mini-card-icon { background: linear-gradient(135deg, #d97706, #b45309); color: white; }
+    .mc-amber .mini-card-badge { background: #fef3c7; color: #b45309; }
+
+    .mc-emerald {
+      background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%);
+      border: 1.5px solid #a7f3d0;
+    }
+    .mc-emerald .mini-card-icon { background: linear-gradient(135deg, #059669, #047857); color: white; }
+    .mc-emerald .mini-card-badge { background: #d1fae5; color: #047857; }
+
+    .mc-orange {
+      background: linear-gradient(135deg, #ffffff 0%, #fff7ed 100%);
+      border: 1.5px solid #fed7aa;
+    }
+    .mc-orange .mini-card-icon { background: linear-gradient(135deg, #ea580c, #c2410c); color: white; }
+    .mc-orange .mini-card-badge { background: #ffedd5; color: #c2410c; }
+
+    .mini-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .mini-card h4 { font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0 0 6px 0; }
+    .mini-card p { font-size: 0.85rem; color: #475569; margin: 0 0 12px 0; line-height: 1.4; font-weight: 500; }
+    .mini-card-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 12px;
+      display: inline-block;
+    }
+
+    /* SECTION TITLES WITH VIBRANT WAVY ACCENTS */
+    .wavy-section-title {
+      text-align: center;
+      margin: 20px 0 12px 0;
+    }
+    .wavy-section-title h2 {
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: #0369a1;
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      margin: 0;
+    }
+    .wavy-section-title h2::before, .wavy-section-title h2::after {
+      content: '〰〰';
+      color: #38bdf8;
+      font-size: 1.2rem;
+      letter-spacing: -2px;
+    }
+
+    /* THREE PILLARS (3 CARDS GRID) */
+    .three-pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 800px) {
+      .three-pillars-grid { grid-template-columns: 1fr; }
+    }
+    .pillar-card {
+      border-radius: 20px;
+      padding: 26px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      transition: all 0.25s ease;
+    }
+    .pillar-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+    .pillar-card.p-blue {
+      background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+      border: 2px solid #bae6fd;
+    }
+    .pillar-card.p-teal {
+      background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%);
+      border: 2px solid #a7f3d0;
+    }
+    .pillar-card.p-amber {
+      background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%);
+      border: 2px solid #fde68a;
+    }
+
+    .pillar-icon-box {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    .p-blue .pillar-icon-box { background: linear-gradient(135deg, #0284c7, #0369a1); color: white; }
+    .p-teal .pillar-icon-box { background: linear-gradient(135deg, #059669, #047857); color: white; }
+    .p-amber .pillar-icon-box { background: linear-gradient(135deg, #d97706, #b45309); color: white; }
+
+    .pillar-card h3 { font-size: 1.2rem; font-weight: 800; color: #0f172a; margin: 0 0 10px 0; }
+    .pillar-card p { font-size: 0.92rem; color: #475569; margin: 0; line-height: 1.6; }
+
+    /* PROCESS STEPS 01 TO 04 */
+    .steps-4-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+    @media (max-width: 900px) {
+      .steps-4-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 500px) {
+      .steps-4-grid { grid-template-columns: 1fr; }
+    }
+
+    .step-badge-card {
+      border-radius: 20px;
+      padding: 24px 18px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: all 0.25s ease;
+    }
+    .step-badge-card:hover { transform: translateY(-4px); }
+
+    .st-1 { background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%); border: 2px solid #bae6fd; }
+    .st-1 .step-num-pill { background: #0284c7; }
+    .st-1 .step-card-icon { background: #e0f2fe; color: #0284c7; }
+
+    .st-2 { background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%); border: 2px solid #fde68a; }
+    .st-2 .step-num-pill { background: #d97706; }
+    .st-2 .step-card-icon { background: #fef3c7; color: #d97706; }
+
+    .st-3 { background: linear-gradient(135deg, #ffffff 0%, #fff7ed 100%); border: 2px solid #fed7aa; }
+    .st-3 .step-num-pill { background: #ea580c; }
+    .st-3 .step-card-icon { background: #ffedd5; color: #ea580c; }
+
+    .st-4 { background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%); border: 2px solid #a7f3d0; }
+    .st-4 .step-num-pill { background: #059669; }
+    .st-4 .step-card-icon { background: #d1fae5; color: #059669; }
+
+    .step-num-pill {
+      position: absolute;
+      top: -14px;
+      left: 18px;
+      color: white;
+      font-size: 0.78rem;
+      font-weight: 900;
+      padding: 3px 12px;
+      border-radius: 12px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+    .step-card-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin: 8px 0 14px 0;
+    }
+    .step-badge-card h4 { font-size: 1.08rem; font-weight: 800; color: #0f172a; margin: 0 0 8px 0; }
+    .step-badge-card p { font-size: 0.88rem; color: #475569; margin: 0; line-height: 1.5; }
+
+    /* WHY EXPLORE THANH AN (3 CARDS GRID) */
+    .why-explore-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 800px) {
+      .why-explore-grid { grid-template-columns: 1fr; }
+    }
+    .why-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 24px 22px;
+      border: 1.5px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.03);
+      transition: all 0.25s ease;
+    }
+    .why-card:hover { transform: translateY(-4px); border-color: #38bdf8; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.12); }
+    .why-icon-circle {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .why-card h4 { font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0 0 4px 0; }
+    .why-card p { font-size: 0.9rem; color: #64748b; margin: 0; line-height: 1.5; }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <img src="logo.png" alt="Logo" class="logo-img">
+        <div class="logo-text"><strong>CÔNG TRÌNH THANH NIÊN</strong></div>
+      </div>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="tong-quan.html" class="active">Giới thiệu chung</a></li>
+        <li><a href="cam-nang.html">Cẩm nang du lịch</a></li>
+        <li><a href="cam-nang-so.html">Cẩm nang số</a></li>
+        <li><a href="hinh-anh.html">Hình ảnh</a></li>
+        <li><a href="index.html#lien-he">Liên hệ</a></li>
+      </ul>
+      <div class="nav-right-actions">
+        <button class="lang-toggle-btn" onclick="toggleLang()" title="Switch language">
+          <i class="fas fa-globe"></i> <span id="lang-label">EN</span>
+        </button>
+        <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PAGE BANNER -->
+  <div class="page-header-bg">
+    <h1>THÔNG TIN TỔNG QUAN <br class="banner-title-br">XÃ ĐẢO THẠNH AN</h1>
+    <p>Khám phá vị trí, lịch sử con người và bức tranh kinh tế sinh thái đặc trưng</p>
+  </div>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <div class="tq-container">
+    
+    <!-- ROW 1: TOP 5 STAT CARDS -->
+    <div class="top-5-grid">
+      <div class="stat-pill-card">
+        <div class="stat-pill-icon icon-teal"><i class="fas fa-map-marker-alt"></i></div>
+        <div class="stat-pill-info">
+          <span class="stat-pill-label">Vị trí</span>
+          <span class="stat-pill-val">Thành phố Hồ Chí Minh</span>
+        </div>
+      </div>
+
+      <div class="stat-pill-card">
+        <div class="stat-pill-icon icon-blue"><i class="fas fa-compass"></i></div>
+        <div class="stat-pill-info">
+          <span class="stat-pill-label">Khoảng cách</span>
+          <span class="stat-pill-val">~70 km từ trung tâm</span>
+        </div>
+      </div>
+
+      <div class="stat-pill-card">
+        <div class="stat-pill-icon icon-emerald"><i class="fas fa-map"></i></div>
+        <div class="stat-pill-info">
+          <span class="stat-pill-label">Diện tích</span>
+          <span class="stat-pill-val">~131,31 km²</span>
+        </div>
+      </div>
+
+      <div class="stat-pill-card">
+        <div class="stat-pill-icon icon-purple"><i class="fas fa-users"></i></div>
+        <div class="stat-pill-info">
+          <span class="stat-pill-label">Dân số</span>
+          <span class="stat-pill-val">Hơn 6.000 cư dân</span>
+        </div>
+      </div>
+
+      <div class="stat-pill-card">
+        <div class="stat-pill-icon icon-amber"><i class="fas fa-home"></i></div>
+        <div class="stat-pill-info">
+          <span class="stat-pill-label">Đơn vị cư trú</span>
+          <span class="stat-pill-val">3 ấp</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 2: TỔNG QUAN NHANH -->
+    <div class="quick-overview-card">
+      <div class="quick-overview-icon"><i class="fas fa-umbrella-beach"></i></div>
+      <div class="quick-overview-text">
+        <h3>Tổng quan nhanh</h3>
+        <p>Thạnh An là xã đảo ven biển thuộc TP.HCM, mang đậm nét làng chài truyền thống. Nơi đây gắn bó với nghề biển, làm muối và du lịch cộng đồng, sở hữu hệ sinh thái phong phú và nếp sống hiền hòa, mộc mạc của người dân vùng đảo.</p>
+      </div>
+      <div class="quick-watermark"><i class="fas fa-ship"></i></div>
+    </div>
+
+    <!-- ROW 3: LỊCH SỬ VÀ CON NGƯỜI (2-Column Grid) -->
+    <div class="split-2col-grid">
+      <div class="feature-block-card">
+        <div class="block-header-row">
+          <div class="block-header-icon"><i class="fas fa-users"></i></div>
+          <h2>Lịch sử và Con người</h2>
+        </div>
+        <p>Thạnh An gắn với quá trình khai phá vùng cửa biển và đời sống của cộng đồng cư dân ven biển. Người dân nơi đây hiền hòa, chân chất, gắn bó với biển và vẫn giữ được nét sinh hoạt mộc mạc của một xã đảo truyền thống.</p>
+        <p>Cộng đồng đoàn kết, chia sẻ và tương trợ lẫn nhau. Những giá trị văn hóa, tập quán, lễ hội dân gian và nếp sống nghĩa tình đã tạo nên bản sắc riêng của người dân Thạnh An.</p>
+        
+        <div class="pill-tags-row">
+          <span class="pill-tag">🌊 Xã đảo TP.HCM</span>
+          <span class="pill-tag">⚓ Làng chài truyền thống</span>
+          <span class="pill-tag">🏠 3 ấp đảo</span>
+          <span class="pill-tag">❤️ Tinh thần cộng đồng</span>
+        </div>
+      </div>
+
+      <div class="vertical-stat-stack">
+        <div class="v-stat-card">
+          <div class="v-stat-icon vs-blue"><i class="fas fa-users"></i></div>
+          <div>
+            <div class="v-stat-title">6.000+</div>
+            <div class="v-stat-sub">cư dân sinh sống</div>
+          </div>
+        </div>
+        <div class="v-stat-card">
+          <div class="v-stat-icon vs-purple"><i class="fas fa-home"></i></div>
+          <div>
+            <div class="v-stat-title">3 ấp</div>
+            <div class="v-stat-sub">Thạnh Bình, Thạnh Hòa, Thiềng Liềng</div>
+          </div>
+        </div>
+        <div class="v-stat-card">
+          <div class="v-stat-icon vs-rose"><i class="fas fa-heart"></i></div>
+          <div>
+            <div class="v-stat-title">Con người</div>
+            <div class="v-stat-sub">hiền hòa, mộc mạc</div>
+          </div>
+        </div>
+        <div class="v-stat-card">
+          <div class="v-stat-icon vs-amber"><i class="fas fa-anchor"></i></div>
+          <div>
+            <div class="v-stat-title">Đời sống</div>
+            <div class="v-stat-sub">gắn bó với biển</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 4: TỰ NHIÊN & KINH TẾ (2-Column Grid with 2x2 Vibrant Mini Cards) -->
+    <div class="split-2col-grid">
+      <div class="feature-block-card">
+        <div class="block-header-row">
+          <div class="block-header-icon icon-teal-bg"><i class="fas fa-leaf"></i></div>
+          <h2>Tự nhiên & Kinh tế</h2>
+        </div>
+        <p>Thạnh An nằm trong vùng cửa sông – ven biển, có hệ thống kênh rạch, bãi bồi và cảnh quan sinh thái đặc trưng. Kinh tế địa phương chủ yếu dựa vào thủy sản, làm muối, vận tải đường thủy và du lịch cộng đồng.</p>
+
+        <!-- 4 Rich Feature Stat Highlights to Eliminate Empty White Space -->
+        <div class="eco-highlight-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0 20px 0;">
+          <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 1px solid #bbf7d0; border-left: 4px solid #16a34a; border-radius: 12px; padding: 12px 14px;">
+            <div style="font-weight: 700; color: #15803d; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+              <i class="fas fa-water" style="color: #16a34a;"></i> Sinh thái cửa sông
+            </div>
+            <div style="font-size: 0.8rem; color: #475569; margin-top: 4px; line-height: 1.35;">Hệ thống kênh rạch, bãi bồi & rừng ngập mặn đặc trưng.</div>
+          </div>
+
+          <div style="background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%); border: 1px solid #bae6fd; border-left: 4px solid #0284c7; border-radius: 12px; padding: 12px 14px;">
+            <div style="font-weight: 700; color: #0369a1; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+              <i class="fas fa-fish" style="color: #0284c7;"></i> Ngư nghiệp ven bờ
+            </div>
+            <div style="font-size: 0.8rem; color: #475569; margin-top: 4px; line-height: 1.35;">Khai thác & nuôi trồng hải sản mang nguồn thu nhập chính.</div>
+          </div>
+
+          <div style="background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%); border: 1px solid #fde68a; border-left: 4px solid #d97706; border-radius: 12px; padding: 12px 14px;">
+            <div style="font-weight: 700; color: #b45309; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+              <i class="fas fa-cubes" style="color: #d97706;"></i> Làng muối Thạnh An
+            </div>
+            <div style="font-size: 0.8rem; color: #475569; margin-top: 4px; line-height: 1.35;">Nghề làm muối trắng truyền thống lâu đời trên xã đảo.</div>
+          </div>
+
+          <div style="background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%); border: 1px solid #e9d5ff; border-left: 4px solid #9333ea; border-radius: 12px; padding: 12px 14px;">
+            <div style="font-weight: 700; color: #7e22ce; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+              <i class="fas fa-umbrella-beach" style="color: #9333ea;"></i> Du lịch cộng đồng
+            </div>
+            <div style="font-size: 0.8rem; color: #475569; margin-top: 4px; line-height: 1.35;">Mô hình du lịch sinh thái xanh, bình yên và hiền hòa.</div>
+          </div>
+        </div>
+
+        <div class="pill-tags-row">
+          <span class="pill-tag tag-green">🐟 Thủy sản</span>
+          <span class="pill-tag tag-green">🧂 Làm muối</span>
+          <span class="pill-tag tag-green">🌲 Rừng ngập mặn</span>
+          <span class="pill-tag tag-green">⛵ Du lịch cộng đồng</span>
+          <span class="pill-tag tag-green">🛍️ Dịch vụ địa phương</span>
+        </div>
+      </div>
+
+      <!-- 2x2 Vibrant Mini Cards Enriched to Match Left Card Height Perfectly -->
+      <div class="mini-4cards-grid">
+        <div class="mini-card mc-blue" style="display: flex; flex-direction: column; justify-content: space-between; padding: 20px 16px; min-height: 240px;">
+          <div>
+            <div class="mini-card-icon"><i class="fas fa-fish"></i></div>
+            <h4 style="margin-top: 8px;">Thế mạnh</h4>
+            <p style="font-weight: 600; color: #0284c7; margin-bottom: 8px;">Thủy sản & Đời sống biển</p>
+            <ul style="list-style: none; padding: 0; margin: 8px 0; font-size: 0.78rem; color: #475569; text-align: left; line-height: 1.45;">
+              <li style="margin-bottom: 5px; display: flex; align-items: flex-start; gap: 6px;"><i class="fas fa-check-circle" style="color: #0284c7; margin-top: 2px; flex-shrink: 0;"></i> Khai thác & nuôi trồng hải sản tươi</li>
+              <li style="display: flex; align-items: flex-start; gap: 6px;"><i class="fas fa-check-circle" style="color: #0284c7; margin-top: 2px; flex-shrink: 0;"></i> Nếp sống làng chài gắn bó với biển</li>
+            </ul>
+          </div>
+          <span class="mini-card-badge" style="margin-top: 10px;">🐟 Ngư nghiệp chính</span>
+        </div>
+
+        <div class="mini-card mc-amber" style="display: flex; flex-direction: column; justify-content: space-between; padding: 20px 16px; min-height: 240px;">
+          <div>
+            <div class="mini-card-icon"><i class="fas fa-ship"></i></div>
+            <h4 style="margin-top: 8px;">Sinh kế</h4>
+            <p style="font-weight: 600; color: #d97706; margin-bottom: 8px;">Làm muối & Vận tải thủy</p>
+            <ul style="list-style: none; padding: 0; margin: 8px 0; font-size: 0.78rem; color: #475569; text-align: left; line-height: 1.45;">
+              <li style="margin-bottom: 5px; display: flex; align-items: flex-start; gap: 6px;"><i class="fas fa-check-circle" style="color: #d97706; margin-top: 2px; flex-shrink: 0;"></i> Nghề làm muối trắng truyền thống</li>
+              <li style="display: flex; align-items: flex-start; gap: 6px;"><i class="fas fa-check-circle" style="color: #d97706; margin-top: 2px; flex-shrink: 0;"></i> Vận tải đường thủy & dịch vụ đảo</li>
+            </ul>
+          </div>
+          <span class="mini-card-badge" style="margin-top: 10px;">🧂 Muối & Vận tải</span>
+        </div>
+
+        <div class="mini-card mc-emerald" style="display: flex; flex-direction: column; justify-content: space-between; padding: 20px 16px; min-height: 240px;">
+          <div>
+            <div class="mini-card-icon"><i class="fas fa-tree"></i></div>
+            <h4 style="margin-top: 8px;">Sinh thái</h4>
+            <p style="font-weight: 600; color: #16a34a; margin-bottom: 8px;">Rừng ngập mặn & Bãi bồi</p>
+            <ul style="list-style: none; padding: 0; margin: 8px 0; font-size: 0.78rem; color: #475569; text-align: left; line-height: 1.45;">
+              <li style="margin-bottom: 5px; display: flex; align-items: flex-start; gap: 6px;"><i class="fas fa-check-circle" style="color: #16a34a; margin-top: 2px; flex-shrink: 0;"></i> Khu dự trữ sinh quyển thế giới</li>
+              <li style="display: flex; align-items: flex-start; gap: 6px;"><i class="fas fa-check-circle" style="color: #16a34a; margin-top: 2px; flex-shrink: 0;"></i> Cảnh quan thiên nhiên trong lành</li>
+            </ul>
+          </div>
+          <span class="mini-card-badge" style="margin-top: 10px;">🌲 Khu dự trữ sinh quyển</span>
+        </div>
+
+        <div class="mini-card mc-orange" style="display: flex; flex-direction: column; justify-content: space-between; padding: 20px 16px; min-height: 240px;">
+          <div>
+            <div class="mini-card-icon"><i class="fas fa-camera"></i></div>
+            <h4 style="margin-top: 8px;">Du lịch</h4>
+            <p style="font-weight: 600; color: #ea580c; margin-bottom: 8px;">Du lịch sinh thái cộng đồng</p>
+            <ul style="list-style: none; padding: 0; margin: 8px 0; font-size: 0.78rem; color: #475569; text-align: left; line-height: 1.45;">
+              <li style="margin-bottom: 5px; display: flex; align-items: flex-start; gap: 6px;"><i class="fas fa-check-circle" style="color: #ea580c; margin-top: 2px; flex-shrink: 0;"></i> Trải nghiệm bản địa Thạnh An</li>
+              <li style="display: flex; align-items: flex-start; gap: 6px;"><i class="fas fa-check-circle" style="color: #ea580c; margin-top: 2px; flex-shrink: 0;"></i> Thưởng thức hải sản tươi tại chỗ</li>
+            </ul>
+          </div>
+          <span class="mini-card-badge" style="margin-top: 10px;">⛵ Trải nghiệm bản địa</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 5: BA TRỤ CỘT PHÁT TRIỂN -->
+    <div class="wavy-section-title">
+      <h2>Ba trụ cột phát triển</h2>
+    </div>
+
+    <div class="three-pillars-grid">
+      <div class="pillar-card p-blue">
+        <div class="pillar-icon-box"><i class="fas fa-landmark"></i></div>
+        <h3>Văn hóa bản địa</h3>
+        <p>Gìn giữ giá trị truyền thống, lễ hội, nghề biển và nếp sống nghĩa tình. Xây dựng bản sắc riêng của cộng đồng đảo.</p>
+      </div>
+
+      <div class="pillar-card p-teal">
+        <div class="pillar-icon-box"><i class="fas fa-seedling"></i></div>
+        <h3>Sinh thái bền vững</h3>
+        <p>Bảo tồn rừng ngập mặn, bảo vệ môi trường, khai thác tài nguyên hài hòa. Phát triển kinh tế xanh, thích ứng biến đổi khí hậu.</p>
+      </div>
+
+      <div class="pillar-card p-amber">
+        <div class="pillar-icon-box"><i class="fas fa-users-cog"></i></div>
+        <h3>Du lịch cộng đồng</h3>
+        <p>Phát triển du lịch gắn với cộng đồng, trải nghiệm đời sống địa phương. Tạo sinh kế bền vững cho người dân trên đảo.</p>
+      </div>
+    </div>
+
+    <!-- ROW 6: ĐIỂM NHẤN NỔI BẬT (Steps 01 - 04) -->
+    <div class="wavy-section-title">
+      <h2>Điểm nhấn nổi bật</h2>
+    </div>
+
+    <div class="steps-4-grid">
+      <div class="step-badge-card st-1">
+        <span class="step-num-pill">01</span>
+        <div class="step-card-icon"><i class="fas fa-ship"></i></div>
+        <h4>Không gian làng chài</h4>
+        <p>Những mái nhà ven sông, bến thuyền và nhịp sống chài lưới mộc mạc.</p>
+      </div>
+
+      <div class="step-badge-card st-2">
+        <span class="step-num-pill">02</span>
+        <div class="step-card-icon"><i class="fas fa-mountain"></i></div>
+        <h4>Ruộng muối Thiềng Liềng</h4>
+        <p>Cánh đồng muối trắng trải dài, nghề truyền thống độc đáo.</p>
+      </div>
+
+      <div class="step-badge-card st-3">
+        <span class="step-num-pill">03</span>
+        <div class="step-card-icon"><i class="fas fa-fish"></i></div>
+        <h4>Ẩm thực hải sản</h4>
+        <p>Hải sản tươi ngon, đậm đà hương vị biển đảo.</p>
+      </div>
+
+      <div class="step-badge-card st-4">
+        <span class="step-num-pill">04</span>
+        <div class="step-card-icon"><i class="fas fa-sun"></i></div>
+        <h4>Nhịp sống yên bình</h4>
+        <p>Không khí trong lành, con người hiền hòa, hiếu khách.</p>
+      </div>
+    </div>
+
+    <!-- ROW 7: VÌ SAO NÊN KHÁM PHÁ THẠNH AN? -->
+    <div class="wavy-section-title">
+      <h2>Vì sao nên khám phá Thạnh An?</h2>
+    </div>
+
+    <div class="why-explore-grid">
+      <div class="why-card">
+        <div class="why-icon-circle icon-blue"><i class="fas fa-map-marker-alt"></i></div>
+        <div>
+          <h4>Gần TP.HCM</h4>
+          <p>Chỉ khoảng 70 km, dễ dàng di chuyển bằng đường bộ và đường thủy.</p>
+        </div>
+      </div>
+
+      <div class="why-card">
+        <div class="why-icon-circle icon-amber"><i class="fas fa-star"></i></div>
+        <div>
+          <h4>Bản sắc rõ nét</h4>
+          <p>Văn hóa làng chài, làm muối và đời sống cộng đồng đặc trưng.</p>
+        </div>
+      </div>
+
+      <div class="why-card">
+        <div class="why-icon-circle icon-teal"><i class="fas fa-leaf"></i></div>
+        <div>
+          <h4>Trải nghiệm xanh</h4>
+          <p>Thiên nhiên trong lành, rừng ngập mặn, hải sản tươi ngon và thân thiện.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer" id="lien-he">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand-col">
+        <div class="footer-brand-row">
+          <img src="logo.png" alt="Logo" class="footer-logo">
+          <div class="footer-brand-text">
+            <strong>ĐOÀN TRƯỜNG ĐẠI HỌC KINH TẾ - LUẬT</strong>
+            <span>UEL'S HO CHI MINH COMMUNIST YOUTH UNION</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>MẠNG XÃ HỘI</h4>
+        <ul>
+          <li><a href="https://www.facebook.com/share/183m2v3bUu/" target="_blank"><i class="fab fa-facebook fa-fw"></i> Facebook</a></li>
+          <li><a href="https://www.instagram.com/youth.uel" target="_blank"><i class="fab fa-instagram fa-fw"></i> Instagram</a></li>
+          <li><a href="https://www.tiktok.com/@teuthichdichoi" target="_blank"><i class="fab fa-tiktok fa-fw"></i> TikTok</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>THÔNG TIN LIÊN HỆ</h4>
+        <ul class="contact-list">
+          <li><i class="fas fa-phone"></i> <span>(028) 3 7244 555</span></li>
+          <li><i class="fas fa-envelope"></i> <span>doanthanhnien@uel.edu.vn</span></li>
+          <li><i class="fas fa-map-marker-alt"></i> <span>Phòng A.210, 669 Đỗ Mười, Linh Xuân, TP.HCM</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom"><p>© 2026 Đoàn Trường Đại học Kinh tế - Luật, ĐHQG-HCM.</p></div>
+  </footer>
+
+  <script src="home.js?v=82"></script>
+</body>
+</html>

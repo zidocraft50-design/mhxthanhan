@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sổ Tay Cẩm Nang Số 3D - Xã Đảo Thạnh An</title>
+  <link rel="icon" type="image/png" href="Huy_Hiệu_Đoàn.png">
+  
+  <!-- Material Symbols & Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css?v=82">
+
+  <!-- Load PDF.js & StPageFlip libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --fb-primary: #0284c7;
+      --fb-primary-light: #0369a1;
+      --fb-accent: #f59e0b;
+      --fb-dark-bg: #f8fafc;
+      --fb-light-bg: #faf6f0;
+      --fb-text-light: #f8fafc;
+      --fb-text-dark: #0284c7;
+      --fb-control-bg: rgba(2, 132, 199, 0.95);
+      --fb-shadow: 0 10px 30px rgba(2, 132, 199, 0.12);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--fb-dark-bg);
+      color: #1e293b;
+    }
+
+    .flipbook-section {
+      background-color: var(--fb-dark-bg);
+      min-height: calc(100vh - 120px);
+      padding: 30px 20px 60px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .page-header-bg {
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.85) 0%, rgba(3, 105, 161, 0.82) 100%), url('3.jpg') center/cover no-repeat !important;
+      color: white;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 135px 20px 50px 20px !important;
+      position: relative;
+      box-sizing: border-box;
+      box-shadow: inset 0 -10px 25px rgba(0,0,0,0.15);
+    }
+    .page-header-bg h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin: 0 0 10px 0;
+      letter-spacing: -0.5px;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+    }
+    .page-header-bg p {
+      color: #f0f9ff;
+      font-size: 1.1rem;
+      margin: 0;
+      font-weight: 500;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Top Action Bar */
+    .fb-action-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      width: 100%;
+      max-width: 1200px;
+      background: white;
+      padding: 16px 24px;
+      border-radius: 16px;
+      box-shadow: var(--fb-shadow);
+      border: 1px solid #e2e8f0;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+      z-index: 10;
+    }
+
+    .fb-upload-btn {
+      background: var(--fb-primary);
+      color: white;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+      transition: all 0.25s ease;
+      text-decoration: none;
+    }
+
+    .fb-upload-btn:hover {
+      background: var(--fb-primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+    }
+
+    /* Loading State */
+    .flipbook-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: var(--fb-shadow);
+      border: 1px solid rgba(2, 132, 199, 0.1);
+      z-index: 10;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    .spinner-box {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: transparent;
+      margin-bottom: 20px;
+    }
+
+    .circle-border {
+      width: 50px;
+      height: 50px;
+      padding: 3px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 50%;
+      background: linear-gradient(0deg, rgba(2,132,199,0.1) 33%, var(--fb-accent) 100%);
+      animation: spin .8s linear infinite;
+    }
+
+    .circle-core {
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+      border-radius: 50%;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--fb-primary-dark);
+      margin-bottom: 12px;
+    }
+
+    .loading-bar-container {
+      width: 100%;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .loading-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--fb-accent);
+      border-radius: 3px;
+      transition: width 0.2s ease;
+    }
+
+    /* Error View */
+    .flipbook-error {
+      text-align: center;
+      padding: 45px 30px;
+      background: #ffffff;
+      border-radius: 20px;
+      max-width: 500px;
+      border: 1px solid rgba(2, 132, 199, 0.15);
+      box-shadow: var(--fb-shadow);
+      z-index: 10;
+      color: #1e293b;
+    }
+
+    .error-icon {
+      font-size: 4rem;
+      color: var(--fb-primary);
+      margin-bottom: 15px;
+    }
+
+    .flipbook-error h3 {
+      margin: 0 0 10px 0;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .flipbook-error p {
+      color: #64748b;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    /* Flipbook Container Wrapper */
+    .flipbook-wrapper {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 5;
+    }
+
+    .flipbook-viewport {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px 0;
+      min-height: 480px;
+      overflow: visible;
+    }
+
+    .flipbook-container {
+      box-shadow: 0 20px 50px rgba(2, 132, 199, 0.18);
+      background: transparent;
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      transform-origin: center center;
+      border-radius: 4px;
+    }
+
+    /* Page Stylings */
+    .flipbook-page {
+      background-color: var(--fb-light-bg);
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+      overflow: hidden;
+      border-radius: 4px;
+    }
+
+    .flipbook-container:not(.st-initialized) .flipbook-page {
+      position: absolute;
+      visibility: hidden;
+    }
+
+    .page-content {
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 6px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: var(--fb-light-bg);
+      position: relative;
+    }
+
+    .page-content canvas {
+      width: 100%;
+      height: calc(100% - 25px);
+      object-fit: contain;
+      background: var(--fb-light-bg);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    }
+
+    .page-number {
+      height: 20px;
+      line-height: 20px;
+      text-align: center;
+      font-size: 11px;
+      color: #8c857b;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      border-top: 1px solid rgba(0,0,0,0.06);
+      margin-top: 6px;
+    }
+
+    /* Dynamic Spine Shadow for landscape mode (Gáy sách 3D) */
+    .flipbook-viewport.has-spine::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      bottom: 20px;
+      left: 50%;
+      width: 30px;
+      transform: translateX(-50%);
+      background: linear-gradient(to right, 
+          rgba(0,0,0,0.15) 0%, 
+          rgba(0,0,0,0.06) 25%, 
+          rgba(0,0,0,0) 45%, 
+          rgba(0,0,0,0) 55%, 
+          rgba(0,0,0,0.06) 75%, 
+          rgba(0,0,0,0.15) 100%);
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Controls Panel */
+    .flipbook-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 25px;
+      background: var(--fb-control-bg);
+      padding: 10px 24px;
+      border-radius: 40px;
+      box-shadow: 0 10px 25px rgba(2, 132, 199, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.15);
+      flex-wrap: wrap;
+    }
+
+    .control-btn {
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      outline: none;
+    }
+
+    .control-btn:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateY(-2px);
+    }
+
+    .control-btn span {
+      font-size: 22px;
+    }
+
+    .control-divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.25);
+      margin: 0 6px;
+    }
+
+    .page-indicator {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: #ffffff;
+      padding: 0 10px;
+      min-width: 100px;
+      text-align: center;
+    }
+
+    /* Fullscreen Mode Override */
+    .flipbook-wrapper:fullscreen {
+      background: var(--fb-dark-bg);
+      padding: 40px;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <img src="logo.png" alt="Logo" class="logo-img">
+        <div class="logo-text"><strong>CÔNG TRÌNH THANH NIÊN</strong></div>
+      </div>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="tong-quan.html">Giới thiệu chung</a></li>
+        <li><a href="cam-nang.html">Cẩm nang du lịch</a></li>
+        <li><a href="cam-nang-so.html" class="active">Cẩm nang số</a></li>
+        <li><a href="hinh-anh.html">Hình ảnh</a></li>
+        <li><a href="index.html#lien-he">Liên hệ</a></li>
+      </ul>
+      <div class="nav-right-actions">
+        <button class="lang-toggle-btn" onclick="toggleLang()" title="Switch language">
+          <i class="fas fa-globe"></i> <span id="lang-label">EN</span>
+        </button>
+        <button class="nav-toggle" id="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HEADER BANNER -->
+  <div class="page-header-bg">
+    <h1>📖 CẨM NANG SỐ <br class="banner-title-br">XÃ ĐẢO THẠNH AN</h1>
+    <p>Hướng dẫn tham quan, lưu trú, ăn uống & bảo vệ môi trường xã đảo Thạnh An</p>
+  </div>
+
+  <!-- MAIN FLIPBOOK SECTION -->
+  <section class="flipbook-section">
+
+    <!-- Loading Indicator -->
+    <div id="flipbook-loading" class="flipbook-loading">
+      <div class="spinner-box">
+        <div class="circle-border">
+          <div class="circle-core"></div>
+        </div>
+      </div>
+      <div class="loading-text">Đang tải tài liệu... <span id="loading-progress">0%</span></div>
+      <div class="loading-bar-container">
+        <div id="loading-bar" class="loading-bar"></div>
+      </div>
+    </div>
+
+    <!-- Error / Empty State -->
+    <div id="flipbook-error" class="flipbook-error" style="display: none;">
+      <span class="material-symbols-outlined error-icon">menu_book</span>
+      <h3 id="error-card-title">Chưa Có File Cẩm Nang PDF</h3>
+      <p id="error-card-desc">Nội dung Cẩm nang số Thạnh An đang được Ban biên tập cập nhật. Vui lòng quay lại sau!</p>
+      <!-- Management button inside error card for Admin -->
+      <a id="btn-error-upload-pdf" href="quanly.html" class="fb-upload-btn" style="margin-top: 10px; display:none; background:#0284c7;">
+        <i class="fas fa-cog"></i> Mở Trang Quản Lý Tải File PDF
+      </a>
+    </div>
+
+    <!-- Flipbook Container Wrapper -->
+    <div id="flipbook-wrapper" class="flipbook-wrapper" style="display: none;">
+      <div class="flipbook-viewport" id="viewport">
+        <div id="flipbook-container" class="flipbook-container">
+          <!-- Dynamic page canvases will be appended here -->
+        </div>
+      </div>
+      
+      <!-- Navigation Controls -->
+      <div class="flipbook-controls">
+        <button class="control-btn" id="btn-first" title="Trang đầu">
+          <span class="material-symbols-outlined">first_page</span>
+        </button>
+        <button class="control-btn" id="btn-prev" title="Trang trước">
+          <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        
+        <span class="page-indicator">
+          Trang <span id="current-page-num">1</span> / <span id="total-page-num">1</span>
+        </span>
+        
+        <button class="control-btn" id="btn-next" title="Trang sau">
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+        <button class="control-btn" id="btn-last" title="Trang cuối">
+          <span class="material-symbols-outlined">last_page</span>
+        </button>
+        
+        <div class="control-divider"></div>
+        
+        <button class="control-btn" id="btn-zoom-out" title="Thu nhỏ">
+          <span class="material-symbols-outlined">zoom_out</span>
+        </button>
+        <button class="control-btn" id="btn-zoom-in" title="Phóng to">
+          <span class="material-symbols-outlined">zoom_in</span>
+        </button>
+        <button class="control-btn" id="btn-fullscreen" title="Toàn màn hình">
+          <span class="material-symbols-outlined">fullscreen</span>
+        </button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="subpage-footer">
+    <div class="subpage-footer-content" style="display:flex; align-items:center; justify-content:center; gap:15px; flex-wrap:wrap; padding:20px;">
+      <p style="margin:0; color:#64748b; font-size:0.9rem;">© 2026 Đoàn Trường Đại học Kinh tế - Luật, ĐHQG-HCM.</p>
+      <button id="admin-pencil-fab" class="admin-pencil-footer" onclick="openAdminSidebar()" title="Mở Thanh Quản Trị Bên">
+        <i class="fas fa-pencil-alt"></i> Chỉnh sửa
+      </button>
+    </div>
+  </footer>
+
+  <script>
+    // PDF.js worker configuration
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAe5evR4GLSnTG4iTQAXH2uepOXAqZnYbE",
+      authDomain: "thanh-an-guidebook.firebaseapp.com",
+      projectId: "thanh-an-guidebook",
+      storageBucket: "thanh-an-guidebook.firebasestorage.app",
+      messagingSenderId: "267179583637",
+      appId: "1:267179583637:web:70d8835f66028844cd139c"
+    };
+    if (!firebase.apps || !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    document.addEventListener("DOMContentLoaded", function () {
+      updatePdfAdminVisibility();
+      initPdfFlipbookEngine();
+    });
+
+    function updatePdfAdminVisibility() {
+      const isLogged = localStorage.getItem('admin_logged_in') === 'true';
+      const topBtn = document.getElementById('btn-top-upload-pdf');
+      const errBtn = document.getElementById('btn-error-upload-pdf');
+      if (topBtn) topBtn.style.display = isLogged ? 'inline-flex' : 'none';
+      if (errBtn) errBtn.style.display = isLogged ? 'inline-flex' : 'none';
+    }
+
+    async function initPdfFlipbookEngine() {
+      try {
+        await fetchPdfFromFirestore();
+      } catch(err) {
+        fallbackToLocalPdf();
+      }
+    }
+
+    async function fetchPdfFromFirestore() {
+      try {
+        const docSnap1 = await db.collection('system_config').doc('pdf_file').get();
+        const docSnap2 = await db.collection('siteConfig').doc('main').get();
+
+        let pdfUrl = null;
+        let pdfName = 'cam-nang-thanh-an.pdf';
+
+        if (docSnap1 && docSnap1.exists) {
+          const d = docSnap1.data();
+          pdfUrl = d.url || d.pdfDataUrl;
+          pdfName = d.fileName || d.pdfFileName || pdfName;
+
+          if (!pdfUrl && d.totalChunks > 0) {
+            try {
+              const chunkPromises = [];
+              for (let i = 0; i < d.totalChunks; i++) {
+                chunkPromises.push(db.collection('pdf_chunks').doc(`chunk_${i}`).get());
+              }
+              const chunkSnaps = await Promise.all(chunkPromises);
+              const validChunks = chunkSnaps.filter(s => s && s.exists).map(s => s.data());
+              if (validChunks.length === d.totalChunks) {
+                validChunks.sort((a, b) => a.index - b.index);
+                pdfUrl = validChunks.map(c => c.data).join('');
+              }
+            } catch(chunkErr) {
+              console.error("Chunk fetch error:", chunkErr);
+            }
+          }
+        } else if (docSnap2 && docSnap2.exists && (docSnap2.data().pdfDataUrl || docSnap2.data().url)) {
+          const d = docSnap2.data();
+          pdfUrl = d.pdfDataUrl || d.url;
+          pdfName = d.pdfFileName || d.fileName || pdfName;
+        }
+
+        if (pdfUrl) {
+          try {
+            localStorage.setItem('pdf_data_url', pdfUrl);
+            localStorage.setItem('pdf_file_name', pdfName);
+          } catch(e) {}
+          startRenderingPdf(pdfUrl, pdfName);
+        } else {
+          fallbackToLocalPdf();
+        }
+      } catch(e) {
+        fallbackToLocalPdf();
+      }
+    }
+
+    function fallbackToLocalPdf() {
+      try {
+        const localPdf = localStorage.getItem('pdf_data_url') || localStorage.getItem('local_pdf_data');
+        const localName = localStorage.getItem('pdf_file_name') || localStorage.getItem('local_pdf_name') || 'cam-nang-thanh-an.pdf';
+        if (localPdf && (localPdf.startsWith('data:application/pdf') || localPdf.startsWith('http') || localPdf.length > 100)) {
+          startRenderingPdf(localPdf, localName);
+          return;
+        }
+      } catch(e) {}
+      showErrorState();
+    }
+
+    function showErrorState() {
+      document.getElementById('flipbook-loading').style.display = 'none';
+      document.getElementById('flipbook-wrapper').style.display = 'none';
+      
+      const isLogged = localStorage.getItem('admin_logged_in') === 'true';
+      const errTitle = document.getElementById('error-card-title');
+      const errDesc = document.getElementById('error-card-desc');
+      const errBtn = document.getElementById('btn-error-upload-pdf');
+
+      if (isLogged) {
+        if (errTitle) errTitle.innerText = 'Chưa Có File Cẩm Nang PDF';
+        if (errDesc) errDesc.innerText = 'Bấm nút bên dưới để chọn file PDF Cẩm nang Thạnh An từ máy tính của bạn lên dạng Sách Lật 3D.';
+        if (errBtn) errBtn.style.display = 'inline-flex';
+      } else {
+        if (errTitle) errTitle.innerText = '📖 Cẩm Nang Số Thạnh An';
+        if (errDesc) errDesc.innerText = 'Nội dung Cẩm nang số Thạnh An đang được Ban biên tập cập nhật. Vui lòng quay lại sau!';
+        if (errBtn) errBtn.style.display = 'none';
+      }
+
+      document.getElementById('flipbook-error').style.display = 'block';
+    }
+
+    function startRenderingPdf(pdfUrlOrDataUrl, fileName) {
+      const loadingEl = document.getElementById('flipbook-loading');
+      const errorEl = document.getElementById('flipbook-error');
+      const wrapperEl = document.getElementById('flipbook-wrapper');
+      const containerEl = document.getElementById('flipbook-container');
+      const fileLabel = document.getElementById('pdf-file-label');
+      const downloadBtn = document.getElementById('btn-download-pdf-file');
+
+      if (downloadBtn) {
+        downloadBtn.href = pdfUrlOrDataUrl;
+        downloadBtn.download = fileName || 'cam-nang-thanh-an.pdf';
+        downloadBtn.style.display = 'inline-flex';
+      }
+      if (fileLabel) {
+        fileLabel.innerText = `Cuốn sách: ${fileName || 'cam-nang-thanh-an.pdf'}`;
+      }
+
+      if (!containerEl || containerEl.dataset.initialized === 'true') return;
+      containerEl.dataset.initialized = 'true';
+
+      const progressEl = document.getElementById('loading-progress');
+      const progressBarEl = document.getElementById('loading-bar');
+      const viewportEl = document.getElementById('viewport');
+
+      let pdf = null;
+      let pageFlip = null;
+      let zoomScale = 1.0;
+      let totalPages = 0;
+      let pageW = 480;
+      let pageH = 340;
+      const renderedPages = new Set();
+      const renderingPages = new Set();
+
+      // Calculate Page Aspect Ratio (A4 Horizontal)
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        pageW = Math.min(window.innerWidth - 30, 480);
+        pageH = pageW / 1.4142;
+      } else {
+        const maxAvailableWidth = (window.innerWidth - 120) / 2;
+        const maxAvailableHeight = window.innerHeight - 280;
+        pageH = Math.min(maxAvailableHeight, 520);
+        pageW = pageH * 1.4142;
+        if (pageW > maxAvailableWidth) {
+          pageW = maxAvailableWidth;
+          pageH = pageW / 1.4142;
+        }
+      }
+
+      // Load PDF Task
+      const loadingTask = pdfjsLib.getDocument(pdfUrlOrDataUrl);
+      
+      loadingTask.onProgress = function(progress) {
+        if (progress.total > 0) {
+          const percent = Math.round((progress.loaded / progress.total) * 100);
+          progressEl.textContent = percent + '%';
+          progressBarEl.style.width = percent + '%';
+        } else {
+          progressEl.textContent = 'Đang nạp file...';
+        }
+      };
+
+      loadingTask.promise.then(async function(loadedPdf) {
+        pdf = loadedPdf;
+        totalPages = pdf.numPages;
+        document.getElementById('total-page-num').textContent = totalPages;
+        
+        // 1. Create page placeholders
+        for (let i = 1; i <= totalPages; i++) {
+          const pageDiv = document.createElement('div');
+          pageDiv.className = 'flipbook-page';
+          pageDiv.innerHTML = `
+            <div class="page-content">
+              <canvas id="canvas-page-${i}" style="display: none;"></canvas>
+              <div class="page-number">${i} / ${totalPages}</div>
+            </div>
+          `;
+          containerEl.appendChild(pageDiv);
+        }
+
+        // 2. Render first 3 pages immediately (< 200ms)
+        progressBarEl.style.width = '20%';
+        progressEl.textContent = 'Đang chuẩn bị trang sách...';
+        await renderPage(1);
+        if (totalPages >= 2) {
+          progressBarEl.style.width = '50%';
+          await renderPage(2);
+        }
+        if (totalPages >= 3) {
+          progressBarEl.style.width = '80%';
+          await renderPage(3);
+        }
+        progressBarEl.style.width = '100%';
+
+        loadingEl.style.display = 'none';
+        wrapperEl.style.display = 'flex';
+
+        // 3. Initialize StPageFlip
+        let PageFlipClass = null;
+        if (typeof St !== 'undefined') {
+          if (St.PageFlip) PageFlipClass = St.PageFlip;
+          else if (typeof St === 'function') PageFlipClass = St;
+        }
+        if (!PageFlipClass && typeof PageFlip !== 'undefined') PageFlipClass = PageFlip;
+        if (!PageFlipClass && window.pageFlip) PageFlipClass = window.pageFlip.PageFlip || window.pageFlip;
+        
+        if (!PageFlipClass) {
+          throw new Error("Không tìm thấy thư viện PageFlip.");
+        }
+
+        containerEl.classList.add('st-initialized');
+        pageFlip = new PageFlipClass(containerEl, {
+          width: pageW,
+          height: pageH,
+          size: "stretch",
+          minWidth: 200,
+          maxWidth: 800,
+          minHeight: 140,
+          maxHeight: 600,
+          flippingTime: 600,
+          maxShadowOpacity: 0.4,
+          showCover: true,
+          mobileScrollSupport: false
+        });
+
+        pageFlip.loadFromHTML(document.querySelectorAll('.flipbook-page'));
+
+        const initialIndex = pageFlip.getCurrentPageIndex();
+        document.getElementById('current-page-num').textContent = initialIndex + 1;
+
+        updateSpineShadow();
+
+        pageFlip.on('flip', (e) => {
+          const pageIndex = e.data;
+          const activePageNum = pageIndex + 1;
+          document.getElementById('current-page-num').textContent = activePageNum;
+          updateSpineShadow();
+          
+          renderPage(activePageNum);
+          if (activePageNum > 1) renderPage(activePageNum - 1);
+          if (activePageNum < totalPages) renderPage(activePageNum + 1);
+          if (pageFlip.getOrientation() === 'landscape') {
+            if (activePageNum < totalPages - 1) renderPage(activePageNum + 2);
+            if (activePageNum > 2) renderPage(activePageNum - 2);
+          }
+        });
+
+        // Controls
+        document.getElementById('btn-first').addEventListener('click', () => pageFlip.turnToPage(0));
+        document.getElementById('btn-prev').addEventListener('click', () => pageFlip.flipPrev());
+        document.getElementById('btn-next').addEventListener('click', () => pageFlip.flipNext());
+        document.getElementById('btn-last').addEventListener('click', () => pageFlip.turnToPage(totalPages - 1));
+
+        // Zoom
+        document.getElementById('btn-zoom-in').addEventListener('click', () => {
+          if (zoomScale < 1.6) {
+            zoomScale += 0.15;
+            containerEl.style.transform = `scale(${zoomScale})`;
+          }
+        });
+        document.getElementById('btn-zoom-out').addEventListener('click', () => {
+          if (zoomScale > 0.8) {
+            zoomScale -= 0.15;
+            containerEl.style.transform = `scale(${zoomScale})`;
+          }
+        });
+
+        // Fullscreen
+        const fullscreenBtn = document.getElementById('btn-fullscreen');
+        fullscreenBtn.addEventListener('click', () => {
+          if (!document.fullscreenElement) {
+            wrapperEl.requestFullscreen().catch(err => console.error(err));
+          } else {
+            document.exitFullscreen();
+          }
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+          const icon = fullscreenBtn.querySelector('span');
+          if (document.fullscreenElement) {
+            icon.textContent = 'fullscreen_exit';
+          } else {
+            icon.textContent = 'fullscreen';
+          }
+        });
+
+        // Background Render Remaining Pages
+        async function renderRemainingPagesInBackground() {
+          for (let i = 4; i <= totalPages; i++) {
+            await new Promise(resolve => setTimeout(resolve, 150));
+            await renderPage(i);
+          }
+        }
+        renderRemainingPagesInBackground();
+
+      }).catch(function(err) {
+        console.error("PDF Loading Error:", err);
+        showErrorState();
+      });
+
+      // Render Single Page
+      async function renderPage(pageNum) {
+        if (renderedPages.has(pageNum) || renderingPages.has(pageNum)) return;
+        renderingPages.add(pageNum);
+
+        try {
+          const page = await pdf.getPage(pageNum);
+          const canvas = document.getElementById(`canvas-page-${pageNum}`);
+          if (!canvas) return;
+
+          const context = canvas.getContext('2d');
+          const baseViewport = page.getViewport({ scale: 1.0 });
+          
+          const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+          const scale = (pageW / baseViewport.width) * dpr;
+          const viewport = page.getViewport({ scale: scale });
+
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+
+          await page.render({
+            canvasContext: context,
+            viewport: viewport
+          }).promise;
+
+          canvas.style.display = 'block';
+          renderedPages.add(pageNum);
+        } catch(renderErr) {
+          console.error("Render error at page " + pageNum, renderErr);
+        } finally {
+          renderingPages.delete(pageNum);
+        }
+      }
+
+      function updateSpineShadow() {
+        if (pageFlip && pageFlip.getOrientation() === 'landscape') {
+          viewportEl.classList.add('has-spine');
+        } else {
+          viewportEl.classList.remove('has-spine');
+        }
+      }
+    }
+  </script>
+  <script src="home.js?v=82"></script>
+</body>
+</html>

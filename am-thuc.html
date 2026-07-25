@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ẩm thực - Xã Đảo Thạnh An</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="home.css?v=82">
+  
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --primary: #0d9488;
+      --primary-dark: #0f766e;
+      --accent: #f59e0b;
+      --text-dark: #1a2332;
+      --text-medium: #4a5568;
+      --bg-light: #f0f5fb;
+      --radius-md: 12px;
+      --shadow-sm: 0 2px 8px rgba(13,148,136,0.08);
+      --transition: 0.3s ease;
+    }
+    
+    body { font-family: 'Inter', sans-serif; background: var(--bg-light); margin: 0; }
+    
+    .page-header {
+      background: linear-gradient(135deg, #e65100 0%, #f57c00 100%);
+      color: white; height: 250px; display: flex; flex-direction: column;
+      justify-content: center; align-items: center; text-align: center; margin-top: 70px;
+    }
+    .page-header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+    .breadcrumb a { color: white; text-decoration: none; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+
+    .food-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px;
+    }
+
+    .food-card {
+      background: white; border-radius: var(--radius-md); overflow: hidden;
+      box-shadow: var(--shadow-sm); transition: var(--transition);
+    }
+    .food-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+    .food-img { width: 100%; height: 220px; object-fit: cover; }
+    .food-info { padding: 20px; }
+    .food-title { font-size: 1.25rem; margin: 0 0 10px 0; color: var(--text-dark); }
+    .food-price { color: var(--accent); font-weight: 600; font-size: 1.1rem; margin-bottom: 10px; }
+    .food-contact { font-size: 0.9rem; color: var(--text-medium); margin-top: 15px; }
+  </style>
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <img src="logo.png" alt="Logo" class="logo-img">
+        <div class="logo-text"><strong>CÔNG TRÌNH THANH NIÊN</strong></div>
+      </div>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="tong-quan.html">Tổng quan</a></li>
+        <li><a href="di-chuyen.html">Di chuyển</a></li>
+        <li><a href="dia-diem.html">Địa điểm</a></li>
+        <li><a href="am-thuc.html" class="active">Ẩm thực</a></li>
+        <li><a href="luu-tru.html">Lưu trú</a></li>
+        <li><a href="meo-du-lich.html">Mẹo du lịch</a></li>
+        <li><a href="lich-trinh.html">Lịch trình</a></li>
+        <li><a href="hinh-anh.html">Hình ảnh</a></li>
+        <li><a href="index.html#lien-he">Liên hệ</a></li>
+      </ul>
+      <div class="nav-right-actions">
+        <button class="lang-toggle-btn" onclick="toggleLang()"><i class="fas fa-globe"></i> <span>EN</span></button>
+        <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>Khám phá Ẩm thực</h1>
+    <div class="breadcrumb"><a href="index.html">Trang chủ</a> > <span>Ẩm thực</span></div>
+  </div>
+
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: 40px; color: var(--text-dark);">Đặc sản Thạnh An</h2>
+    <div class="food-grid" id="food-grid">
+      <p style="text-align: center; width: 100%;">Đang tải dữ liệu...</p>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand-col">
+        <div class="footer-brand-row">
+          <img src="logo.png" alt="Logo" class="footer-logo">
+          <div class="footer-brand-text">
+            <strong>ĐOÀN TRƯỜNG ĐẠI HỌC KINH TẾ - LUẬT</strong>
+            <span>UEL'S HO CHI MINH COMMUNIST YOUTH UNION</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>MẠNG XÃ HỘI</h4>
+        <ul>
+          <li><a href="https://www.facebook.com/share/183m2v3bUu/" target="_blank"><i class="fab fa-facebook fa-fw"></i> Facebook</a></li>
+          <li><a href="https://www.instagram.com/youth.uel" target="_blank"><i class="fab fa-instagram fa-fw"></i> Instagram</a></li>
+          <li><a href="https://www.tiktok.com/@teuthichdichoi" target="_blank"><i class="fab fa-tiktok fa-fw"></i> TikTok</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>THÔNG TIN LIÊN HỆ</h4>
+        <ul class="contact-list">
+          <li><i class="fas fa-phone"></i> <span>(028) 3 7244 555</span></li>
+          <li><i class="fas fa-envelope"></i> <span>doanthanhnien@uel.edu.vn</span></li>
+          <li><i class="fas fa-map-marker-alt"></i> <span>Phòng A.210, 669 Đỗ Mười, Linh Xuân, TP.HCM</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom"><p>© 2026 Đoàn Trường Đại học Kinh tế - Luật, ĐHQG-HCM.</p></div>
+  </footer>
+
+  <script>
+    if (!firebase.apps || !firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyAe5evR4GLSnTG4iTQAXH2uepOXAqZnYbE",
+        authDomain: "thanh-an-guidebook.firebaseapp.com",
+        projectId: "thanh-an-guidebook",
+        storageBucket: "thanh-an-guidebook.firebasestorage.app",
+        messagingSenderId: "267179583637",
+        appId: "1:267179583637:web:70d8835f66028844cd139c"
+      });
+    }
+    const db = firebase.firestore();
+
+    function driveToImg(url) {
+      if (!url) return 'https://via.placeholder.com/400x300?text=Food';
+      var m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      return m ? 'https://lh3.googleusercontent.com/d/' + m[1] : url;
+    }
+
+    db.collection('places').where('type', '==', 'an-uong').get().then(snapshot => {
+      const grid = document.getElementById('food-grid');
+      grid.innerHTML = '';
+      if(snapshot.empty) { grid.innerHTML = '<p>Chưa có dữ liệu ẩm thực.</p>'; return; }
+      
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        grid.innerHTML += `
+          <div class="food-card">
+            <img src="${driveToImg(data.image)}" alt="${data.name}" class="food-img">
+            <div class="food-info">
+              <h3 class="food-title">${data.name}</h3>
+              <div class="food-price"><i class="fas fa-tag"></i> ${data.price || 'Liên hệ'}</div>
+              <p style="color:var(--text-medium); font-size:0.95rem">${data.description || ''}</p>
+              <div class="food-contact">
+                <i class="fas fa-phone"></i> ${data.contact || 'Đang cập nhật'}<br>
+                <i class="fas fa-map-marker-alt"></i> ${data.address || 'Trên đảo'}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    });
+  </script>
+  <script src="home.js?v=82"></script>
+</body>
+</html>

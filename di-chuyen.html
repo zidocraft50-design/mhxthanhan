@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cách di chuyển - Xã Đảo Thạnh An</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="home.css?v=82">
+  
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --primary: #0d9488;
+      --primary-dark: #0f766e;
+      --primary-light: #ccfbf1;
+      --accent: #f59e0b;
+      --text-dark: #1a2332;
+      --text-medium: #4a5568;
+      --text-light: #7f8c8d;
+      --bg-white: #ffffff;
+      --bg-light: #f0f5fb;
+      --bg-section: #f8fafd;
+      --border: #e2e8f0;
+      --shadow-sm: 0 2px 8px rgba(13,148,136,0.08);
+      --shadow-md: 0 8px 30px rgba(13,148,136,0.1);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+
+    .page-header {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      color: white;
+      height: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      margin-top: 70px;
+      padding: 0 20px;
+    }
+
+    .page-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .breadcrumb { font-size: 1rem; opacity: 0.9; }
+    .breadcrumb a { color: white; text-decoration: none; }
+
+    .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+
+    .timeline {
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .timeline::after {
+      content: '';
+      position: absolute;
+      width: 4px;
+      background-color: var(--primary-light);
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      margin-left: -2px;
+      border-radius: 2px;
+    }
+
+    .timeline-step {
+      padding: 10px 40px;
+      position: relative;
+      background-color: inherit;
+      width: 50%;
+      box-sizing: border-box;
+    }
+
+    .timeline-step:nth-child(odd) { left: 0; }
+    .timeline-step:nth-child(even) { left: 50%; }
+
+    .timeline-icon {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      right: -25px;
+      background-color: var(--primary);
+      border: 4px solid var(--bg-white);
+      top: 15px;
+      border-radius: 50%;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+    }
+    .timeline-step:nth-child(even) .timeline-icon {
+      left: -25px;
+    }
+
+    .timeline-content {
+      padding: 20px;
+      background: var(--bg-white);
+      position: relative;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+    .timeline-content h3 { color: var(--primary-dark); margin-top: 0; }
+
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 40px;
+    }
+    .schedule-card {
+      background: var(--bg-white);
+      border-radius: var(--radius-md);
+      padding: 25px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    @media screen and (max-width: 768px) {
+      .timeline::after { left: 31px; }
+      .timeline-step { width: 100%; padding-left: 70px; padding-right: 25px; }
+      .timeline-step:nth-child(even) { left: 0%; }
+      .timeline-icon { left: 6px !important; }
+      .schedule-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <img src="logo.png" alt="Logo" class="logo-img">
+        <div class="logo-text"><strong>CÔNG TRÌNH THANH NIÊN</strong></div>
+      </div>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="tong-quan.html">Tổng quan</a></li>
+        <li><a href="di-chuyen.html" class="active">Di chuyển</a></li>
+        <li><a href="dia-diem.html">Địa điểm</a></li>
+        <li><a href="am-thuc.html">Ẩm thực</a></li>
+        <li><a href="luu-tru.html">Lưu trú</a></li>
+        <li><a href="meo-du-lich.html">Mẹo du lịch</a></li>
+        <li><a href="lich-trinh.html">Lịch trình</a></li>
+        <li><a href="hinh-anh.html">Hình ảnh</a></li>
+        <li><a href="index.html#lien-he">Liên hệ</a></li>
+      </ul>
+      <div class="nav-right-actions">
+        <button class="lang-toggle-btn" onclick="toggleLang()"><i class="fas fa-globe"></i> <span id="lang-label">EN</span></button>
+        <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>Cách di chuyển</h1>
+    <div class="breadcrumb"><a href="index.html">Trang chủ</a> > <span>Di chuyển</span></div>
+  </div>
+
+  <div class="container">
+    <div class="timeline">
+      <div class="timeline-step">
+        <div class="timeline-icon"><i class="fas fa-car"></i></div>
+        <div class="timeline-content">
+          <h3>Bước 1: Đến bến tàu</h3>
+          <p>Từ trung tâm TP.HCM, di chuyển đến bến phà Bình Khánh, đi qua phà. Tiếp tục chạy thẳng đến Bến Tắc Suất, Cần Giờ.</p>
+        </div>
+      </div>
+      <div class="timeline-step">
+        <div class="timeline-icon"><i class="fas fa-ship"></i></div>
+        <div class="timeline-content">
+          <h3>Bước 2: Đi tàu ra đảo</h3>
+          <p>Mua vé tại Bến Tắc Suất và lên tàu ra xã đảo Thạnh An. Thời gian di chuyển khoảng 30 - 45 phút.</p>
+        </div>
+      </div>
+      <div class="timeline-step">
+        <div class="timeline-icon"><i class="fas fa-walking"></i></div>
+        <div class="timeline-content">
+          <h3>Bước 3: Trên đảo</h3>
+          <p>Khi đến đảo, bạn có thể đi bộ tham quan hoặc thuê xe đạp/xe máy của người dân địa phương.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-grid">
+      <div class="schedule-card">
+        <h3><i class="fas fa-clock" style="color:var(--primary)"></i> Giờ tàu chạy</h3>
+        <ul>
+          <li><strong>Đất liền - Đảo:</strong> 6h30, 9h00, 10h30, 12h00, 14h00, 17h00</li>
+          <li><strong>Đảo - Đất liền:</strong> 6h30, 7h30, 10h30, 12h00, 14h00, 17h00</li>
+        </ul>
+        <p><small>*Lịch trình có thể thay đổi theo thời tiết</small></p>
+      </div>
+      <div class="schedule-card">
+        <h3><i class="fas fa-ticket-alt" style="color:var(--primary)"></i> Giá vé tham khảo</h3>
+        <p><strong>Vé hành khách:</strong> ~15.000đ - 20.000đ/lượt</p>
+        <p><strong>Phí gửi xe tại bến:</strong> ~10.000đ/ngày</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-col footer-brand-col">
+        <div class="footer-brand-row">
+          <img src="logo.png" alt="Logo" class="footer-logo">
+          <div class="footer-brand-text">
+            <strong>ĐOÀN TRƯỜNG ĐẠI HỌC KINH TẾ - LUẬT</strong>
+            <span>UEL'S HO CHI MINH COMMUNIST YOUTH UNION</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>MẠNG XÃ HỘI</h4>
+        <ul>
+          <li><a href="https://www.facebook.com/share/183m2v3bUu/" target="_blank"><i class="fab fa-facebook fa-fw"></i> Facebook</a></li>
+          <li><a href="https://www.instagram.com/youth.uel" target="_blank"><i class="fab fa-instagram fa-fw"></i> Instagram</a></li>
+          <li><a href="https://www.tiktok.com/@teuthichdichoi" target="_blank"><i class="fab fa-tiktok fa-fw"></i> TikTok</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>THÔNG TIN LIÊN HỆ</h4>
+        <ul class="contact-list">
+          <li><i class="fas fa-phone"></i> <span>(028) 3 7244 555</span></li>
+          <li><i class="fas fa-envelope"></i> <span>doanthanhnien@uel.edu.vn</span></li>
+          <li><i class="fas fa-map-marker-alt"></i> <span>Phòng A.210, 669 Đỗ Mười, Linh Xuân, TP.HCM</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom"><p>© 2026 Đoàn Trường Đại học Kinh tế - Luật, ĐHQG-HCM.</p></div>
+  </footer>
+
+  <script>
+    if (!firebase.apps || !firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyAe5evR4GLSnTG4iTQAXH2uepOXAqZnYbE",
+        authDomain: "thanh-an-guidebook.firebaseapp.com",
+        projectId: "thanh-an-guidebook",
+        storageBucket: "thanh-an-guidebook.firebasestorage.app",
+        messagingSenderId: "267179583637",
+        appId: "1:267179583637:web:70d8835f66028844cd139c"
+      });
+    }
+  </script>
+  <script src="home.js?v=82"></script>
+</body>
+</html>
