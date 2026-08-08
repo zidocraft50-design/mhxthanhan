@@ -24,7 +24,7 @@
     body { font-family: 'Inter', sans-serif; background: #f1f5f9; margin: 0; padding: 0; }
     
     .page-header-bg {
-      background: linear-gradient(135deg, rgba(3, 105, 161, 0.82), rgba(2, 132, 199, 0.72)), url('3.jpg') center/cover no-repeat;
+      background: linear-gradient(135deg, rgba(3, 105, 161, 0.82), rgba(2, 132, 199, 0.72)), url('3.png') center/cover no-repeat;
       color: white;
       min-height: 260px;
       display: flex;
@@ -341,7 +341,7 @@
     const db = firebase.firestore();
 
     function driveToImg(url) {
-      if (!url) return '3.jpg';
+      if (!url) return '3.png';
       var m = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([^&]+)/);
       return m ? 'https://lh3.googleusercontent.com/d/' + m[1] : url;
     }
@@ -362,7 +362,7 @@
         category: 'village',
         catLabel: 'Làng chài',
         featured: true,
-        url: 'https://drive.google.com/file/d/144nv1zEWJz_8r-6njBHDHjMzjXMIp1Pu/view?usp=drive_link'
+        url: 'https://drive.google.com/file/d/1q0MHi4vhvEybigeF8Ndj2a5StrZ396-G/view?usp=drive_link'
       },
       {
         id: 'img_3',
@@ -402,7 +402,7 @@
         category: 'food',
         catLabel: 'Ẩm thực',
         featured: true,
-        url: '3.jpg'
+        url: '3.png'
       }
     ];
 
@@ -549,7 +549,7 @@
         card.onclick = () => openLightbox(imgUrl, title);
         card.innerHTML = `
           <span class="gallery-tag-pill">${tag}</span>
-          <img src="${imgUrl}" alt="${title}" onerror="this.src='3.jpg'">
+          <img src="${imgUrl}" alt="${title}" onerror="this.src='3.png'">
           <div class="gallery-card-caption">${title}</div>
         `;
         grid.appendChild(card);

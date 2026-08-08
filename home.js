@@ -186,7 +186,7 @@ const translations = {
 
 // Drive Image URL converter
 function driveToImg(url) {
-  if (!url) return '3.jpg';
+  if (!url) return '3.png';
   const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([^&]+)/);
   return match ? `https://lh3.googleusercontent.com/d/${match[1]}` : url;
 }
@@ -278,7 +278,7 @@ async function loadPlacesForMap() {
       name: 'Làng chài Thạnh An',
       category: '⚓ Văn hóa & Làng chài',
       type: 'tham-quan',
-      imageUrl: 'https://drive.google.com/file/d/144nv1zEWJz_8r-6njBHDHjMzjXMIp1Pu/view?usp=drive_link',
+      imageUrl: 'https://drive.google.com/file/d/1q0MHi4vhvEybigeF8Ndj2a5StrZ396-G/view?usp=drive_link',
       description: 'Không gian làng chài mang đậm nét sinh hoạt của cư dân ven biển với bến cá, ghe thuyền và những con đường nhỏ bình dị. Đây là nơi phù hợp để tìm hiểu đời sống ngư dân và trải nghiệm nhịp sống địa phương.',
       lat: 10.470838880405362,
       lng: 106.97443592711399
@@ -350,7 +350,7 @@ function renderFeatured(places) {
   }
 
   places.forEach((p, index) => {
-    const rawImg = p.imageUrl || p.img || (p.images && p.images[0]) || '3.jpg';
+    const rawImg = p.imageUrl || p.img || (p.images && p.images[0]) || '3.png';
     const imgUrl = driveToImg(rawImg);
     const catName = p.category || p.type || 'Địa điểm nổi bật';
 
@@ -611,8 +611,8 @@ const staticPhraseMap = {
 
   // Tips & Green Rules Section
   "Mẹo Du Lịch & Cẩm Nang Bỏ Túi": "Travel Tips & Pocket Guide",
-  "Chuẩn bị tiền mặt": "Prepare Cash",
-  "Trên đảo không có cây ATM. Bạn nên chuẩn bị sẵn tiền mặt lẻ để mua vé phà, ăn uống và mua đặc sản.": "There are no ATMs on the island. Bring small cash bills for ferry tickets, dining, and local products.",
+  "Chi tiêu": "Payment & Expenses",
+  "Trên đảo đã có CDM Agribank và các dịch vụ chuyển khoản vô cùng tiện lợi, nhưng vẫn khuyến khích chuẩn bị tiền mặt.": "The island now has an Agribank CDM machine and convenient transfer services, but visitors are still encouraged to bring cash.",
   "Sóng 4G & Điện": "4G Signal & Electricity",
   "Sóng thoại và 4G (Viettel, Vina, Mobi) phủ tốt. Đảo dùng điện lưới quốc gia 24/24 ổn định.": "Cellular signal & 4G (Viettel, Vina, Mobi) are good. The island has stable 24/7 national grid power.",
   "Nước ngọt": "Fresh Water",

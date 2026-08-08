@@ -403,6 +403,8 @@ async function savePlace() {
         image: images[0] || '',
         address: document.getElementById('p-address').value,
         contact: document.getElementById('p-contact').value,
+        phone: document.getElementById('p-contact').value,
+        sdt: document.getElementById('p-contact').value,
         price: document.getElementById('p-price').value
     };
 
@@ -709,7 +711,7 @@ function renderGallery() {
         return `
             <div style="background:#ffffff; border:1.5px solid #e2e8f0; border-radius:14px; padding:18px; margin-bottom:16px; display:flex; gap:16px; align-items:center; box-shadow:0 4px 12px rgba(0,0,0,0.03); flex-wrap:wrap;">
                 <div style="width:100px; height:100px; border-radius:12px; overflow:hidden; background:#f1f5f9; flex-shrink:0; border:1px solid #cbd5e1; display:flex; align-items:center; justify-content:center;">
-                    <img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='3.jpg'; this.onerror=null;">
+                    <img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='3.png'; this.onerror=null;">
                 </div>
 
                 <div style="flex:1; min-width:280px; display:flex; flex-direction:column; gap:10px;">

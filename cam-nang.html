@@ -123,7 +123,7 @@
         /* Page Banner */
         .page-banner {
             min-height: 250px;
-            background: linear-gradient(135deg, rgba(2, 132, 199, 0.85) 0%, rgba(3, 105, 161, 0.82) 100%), url('3.jpg') center/cover no-repeat !important;
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.85) 0%, rgba(3, 105, 161, 0.82) 100%), url('3.png') center/cover no-repeat !important;
             color: white;
             display: flex;
             flex-direction: column;
@@ -1240,8 +1240,8 @@
         <div class="tips-grid">
             <div class="tip-card">
                 <div class="tip-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fas fa-money-bill-wave"></i></div>
-                <h3>Chuẩn bị tiền mặt</h3>
-                <p>Trên đảo không có cây ATM. Bạn nên chuẩn bị sẵn tiền mặt lẻ để mua vé phà, ăn uống và mua đặc sản.</p>
+                <h3>Chi tiêu</h3>
+                <p>Trên đảo đã có CDM Agribank và các dịch vụ chuyển khoản vô cùng tiện lợi, nhưng vẫn khuyến khích chuẩn bị tiền mặt.</p>
             </div>
             <div class="tip-card">
                 <div class="tip-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fas fa-wifi"></i></div>
@@ -1690,7 +1690,7 @@
     <div id="place-modal" class="modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
-            <img src="3.jpg" alt="Place" id="modal-img" class="modal-banner">
+            <img src="3.png" alt="Place" id="modal-img" class="modal-banner">
             <div class="modal-body">
                 <h3 id="modal-title" class="modal-title">Tên địa điểm</h3>
                 
@@ -1789,7 +1789,7 @@
 
         // --- 2. DRIVE IMAGE CONVERTER ---
         function driveToImg(url) {
-            if (!url) return '3.jpg';
+            if (!url) return '3.png';
             var m = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([^&]+)/);
             return m ? 'https://lh3.googleusercontent.com/d/' + m[1] : url;
         }
@@ -1816,7 +1816,7 @@
             catIcon: 'fa-anchor',
             address: 'Trung tâm xã đảo Thạnh An',
             description: 'Không gian làng chài mang đậm nét sinh hoạt của cư dân ven biển với bến cá, ghe thuyền và những con hẻm nhỏ yên bình.',
-            image: 'https://drive.google.com/file/d/144nv1zEWJz_8r-6njBHDHjMzjXMIp1Pu/view?usp=drive_link',
+            image: 'https://drive.google.com/file/d/1q0MHi4vhvEybigeF8Ndj2a5StrZ396-G/view?usp=drive_link',
             lat: 10.470838880405362,
             lng: 106.97443592711399
           },
@@ -2029,12 +2029,15 @@
                 card.className = 'place-card';
                 card.innerHTML = `
                     <div class="place-img-wrapper" onclick="openModalById('${place.id}')">
-                        <img src="${imgUrl}" alt="${place.name}" class="place-img" onerror="this.src='3.jpg'">
+                        <img src="${imgUrl}" alt="${place.name}" class="place-img" onerror="this.src='3.png'">
                         <span class="place-tag"><i class="fas ${catIcon}"></i> ${catLabel}</span>
                     </div>
                     <div class="place-info">
                         <h3 class="place-title" onclick="openModalById('${place.id}')">${place.name}</h3>
-                        <div class="place-meta"><i class="fas fa-map-marker-alt" style="color:#0284c7;"></i> <span>${place.address || 'Xã đảo Thạnh An'}</span></div>
+                        <div class="place-meta" style="display:flex; flex-direction:column; gap:3px; margin-bottom:4px;">
+                            <div><i class="fas fa-map-marker-alt" style="color:#0284c7;"></i> <span>${place.address || 'Xã đảo Thạnh An'}</span></div>
+                            ${(place.phone || place.contact || place.sdt) ? `<div style="color:#059669; font-weight:700; font-size:0.83rem;"><i class="fas fa-phone-alt" style="color:#059669;"></i> <span>${place.phone || place.contact || place.sdt}</span></div>` : ''}
+                        </div>
                         <p style="font-size:0.88rem; color:#64748b; margin:6px 0 14px 0; line-height:1.4;">${descSnippet}</p>
                         <div style="display:flex; gap:8px; margin-top:auto;">
                             <button onclick="openModalById('${place.id}')" style="flex:1; background:#e0f2fe; color:#0369a1; border:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">
@@ -2067,9 +2070,10 @@
 
                     var popupHtml = `
                         <div style="font-family:'Inter',sans-serif; width:220px; text-align:center;">
-                            <img src="${imgUrl}" style="width:100%; height:110px; object-fit:cover; border-radius:8px; margin-bottom:8px;" onerror="this.src='3.jpg'">
+                            <img src="${imgUrl}" style="width:100%; height:110px; object-fit:cover; border-radius:8px; margin-bottom:8px;" onerror="this.src='3.png'">
                             <span style="background:${catColor}; color:white; padding:2px 8px; border-radius:12px; font-size:10px; font-weight:bold; display:inline-block; margin-bottom:4px;">${catLabel}</span>
                             <h4 style="margin:4px 0; font-size:14px; font-weight:bold; color:#1e293b;">${place.name}</h4>
+                            ${(place.phone || place.contact || place.sdt) ? `<div style="font-size:11px; color:#059669; font-weight:bold; margin-bottom:4px;"><i class="fas fa-phone-alt"></i> ${place.phone || place.contact || place.sdt}</div>` : ''}
                             <button onclick="openModalById('${place.id}')" style="display:inline-block; background:${catColor}; color:white; border:none; padding:6px 12px; border-radius:6px; font-size:11px; font-weight:bold; width:100%; box-sizing:border-box; margin-top:6px; cursor:pointer;">📖 Xem review chi tiết ➔</button>
                         </div>
                     `;
@@ -2129,7 +2133,7 @@
             document.getElementById('modal-category').textContent = getCategoryLabel(place.category);
             document.getElementById('modal-price').textContent = place.price || 'Đang cập nhật';
             document.getElementById('modal-address').textContent = place.address || 'Đảo Thạnh An';
-            document.getElementById('modal-phone').textContent = place.phone || 'Không có';
+            document.getElementById('modal-phone').textContent = place.phone || place.contact || place.sdt || 'Chưa cập nhật';
             
             modal.classList.add('active');
             

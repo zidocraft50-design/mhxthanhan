@@ -604,7 +604,7 @@
 
     // Drive Image Converter
     function driveToImg(url) {
-        if (!url) return '3.jpg'; // placeholder if empty
+        if (!url) return '3.png'; // placeholder if empty
         var m = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([^&]+)/);
         return m ? 'https://lh3.googleusercontent.com/d/' + m[1] : url;
     }
@@ -689,7 +689,7 @@
 
         filteredPlaces.forEach(place => {
             if (place.lat && place.lng) {
-                const imgUrl = place.images && place.images.length > 0 ? driveToImg(place.images[0]) : '3.jpg';
+                const imgUrl = place.images && place.images.length > 0 ? driveToImg(place.images[0]) : '3.png';
                 const cat = categories[place.type] || categories['tham-quan'];
                 
                 const popupContent = `
@@ -723,7 +723,7 @@
         }
 
         filteredPlaces.forEach((place, index) => {
-            const imgUrl = place.images && place.images.length > 0 ? driveToImg(place.images[0]) : '3.jpg';
+            const imgUrl = place.images && place.images.length > 0 ? driveToImg(place.images[0]) : '3.png';
             const cat = categories[place.type] || categories['tham-quan'];
             
             const card = document.createElement('div');
@@ -740,7 +740,7 @@
                     <div class="card-desc">${place.description || ''}</div>
                     <div class="card-info">
                         ${place.price ? `<div class="info-item"><i class="fas fa-tag"></i> <span>${place.price}</span></div>` : ''}
-                        ${place.contact ? `<div class="info-item"><i class="fas fa-phone"></i> <span>${place.contact}</span></div>` : ''}
+                        ${(place.contact || place.phone || place.sdt) ? `<div class="info-item"><i class="fas fa-phone"></i> <span>${place.contact || place.phone || place.sdt}</span></div>` : ''}
                         ${place.address ? `<div class="info-item"><i class="fas fa-map-marker-alt"></i> <span>${place.address}</span></div>` : ''}
                     </div>
                     <div class="card-action">
@@ -797,7 +797,7 @@
             }
         } else {
             const imgEl = document.createElement('img');
-            imgEl.src = '3.jpg';
+            imgEl.src = '3.png';
             imgEl.className = 'modal-img active';
             gallery.appendChild(imgEl);
         }
